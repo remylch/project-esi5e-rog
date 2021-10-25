@@ -2,33 +2,28 @@ import Collection from "../models/Collection";
 import Router from "../models/Router";
 import { masks, ValuesMask } from "../utils/masks";
 
-const initNetwork = (nbRouters: number, mask: string, form: string) => {
-  switch (form) {
-    case "Etoile a diffusion":
-      initEtoileADiffusion(nbRouters, mask);
-      break;
-    case "Bus a diffusion":
-      initBusADiffusion(nbRouters, mask);
-      break;
-    default:
-      console.log("No form reconized provided");
-      break;
-  }
-};
-
+/**
+ * @description init the routers for a certain mask and topology
+ * @param nbRouters
+ * @param mask
+ * @param topology
+ */
 const initRouters = (
   nbRouters: number,
   mask: string,
-  form: string,
+  topology: string,
 ): Collection<Router> | string => {
   //check mask
   const valueOfMyMask: ValuesMask | undefined = masks.find(
     (item) => item.mask === mask,
   );
   if (typeof valueOfMyMask === "undefined") return "No valid mask provided";
-  //check form
-  switch (form) {
+  //check topology and assign ip
+  /*
+  switch (topology) {
+    
   }
+  */
   //convert mask and get first value to assign to routers
   const ipPlage = "192.168.0.1";
   //init empty list
@@ -42,9 +37,12 @@ const initRouters = (
     const newRouter = new Router(name, ipRouter);
     collection.add(newRouter);
   }
+
   //return collection of router
   return collection;
 };
+
+// Init every topology
 
 const initEtoileADiffusion = (nbRouters: number, mask: string) => {
   const form = "EAD";
@@ -56,4 +54,25 @@ const initBusADiffusion = (nbRouters: number, mask: string) => {
   initRouters(nbRouters, mask, form);
 };
 
-export { initNetwork };
+const initTree = (nbRouters: number, mask: string) => {
+  const form = "TREE";
+  initRouters(nbRouters, mask, form);
+};
+
+const initStar = (nbRouters: number, mask: string) => {
+  const form = "STAR";
+  initRouters(nbRouters, mask, form);
+};
+
+const initRing = (nbRouters: number, mask: string) => {
+  const form = "RING";
+  initRouters(nbRouters, mask, form);
+};
+
+export {
+  initRing,
+  initStar,
+  initTree,
+  initBusADiffusion,
+  initEtoileADiffusion,
+};

@@ -1,5 +1,11 @@
 import React from "react";
-import { initReseau } from "../controller/controller";
+import {
+  initBusADiffusion,
+  initEtoileADiffusion,
+  initRing,
+  initStar,
+  initTree,
+} from "../controller/controller";
 
 function Sidebar() {
   const [errors, setErrors] = React.useState({
