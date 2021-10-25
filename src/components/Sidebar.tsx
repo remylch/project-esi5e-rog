@@ -46,6 +46,23 @@ function Sidebar() {
       setErrors({ ...errors, errMask: true });
       return;
     }
+    switch (formReseau) {
+      case "Bus à diffusion":
+        initBusADiffusion(nbRouters, mask);
+        break;
+      case "Etoile à diffusion":
+        initEtoileADiffusion(nbRouters, mask);
+        break;
+      case "Arbre":
+        initTree(nbRouters, mask);
+        break;
+      case "Anneau":
+        initRing(nbRouters, mask);
+        break;
+      default:
+        alert("No good topology provided");
+        break;
+    }
   };
 
   return (
