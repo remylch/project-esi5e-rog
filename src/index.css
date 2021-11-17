@@ -19,7 +19,7 @@ code {
 
 @layer components {
   .btn-inline {
-    @apply py-2 px-4 font-semibold rounded-lg shadow-md text-white bg-blue-500 hover:bg-blue-700;
+    @apply py-2 px-4 font-semibold rounded-lg shadow-md text-white bg-blue-700 hover:bg-blue-800;
   }
   .input {
     @apply focus:outline-none w-3/4 mt-3 placeholder-blue-500 text-blue-500 h-12 border-transparent select-none bg-white rounded-xl ring ring-offset-2;

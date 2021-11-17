@@ -1,14 +1,15 @@
 import Collection from "./Collection";
+import { Topology } from "./enum";
 import Router from "./Router";
 
 class Network {
   constructor(
-    private routers?: Collection<Router>,
+    private routers?: Router[],
     private algorithm?: string,
-    private form?: string,
+    private topology?: Topology,
   ) {}
 
-  getRouters(): Collection<Router> | null {
+  getRouters(): Router[] | null {
     return this.routers || null;
   }
 
@@ -16,8 +17,8 @@ class Network {
     return this.algorithm || null;
   }
 
-  getForm(): string | null {
-    return this.form || null;
+  getTopology(): Topology | null {
+    return this.topology || null;
   }
 }
 
