@@ -11,16 +11,8 @@ function RoutingTable({
   updateStatusFunction,
   generateNewPonderation,
 }: RoutingTable) {
-  /*
-  function changeStatus(id: number) {
-    const router = data?.getRouters().find((r) => r.getId() === id);
-    console.log("router finded", router);
-    router?.changeStatus();
-  }
-  */
-
   return (
-    <div className="flex h-56 w-full">
+    <div className="flex h-56 w-full ">
       <div className="flex flex-col w-full">
         <div className="w-full">
           <div className=" align-middle inline-block min-w-full w-full">

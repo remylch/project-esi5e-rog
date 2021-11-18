@@ -34,10 +34,17 @@ function App() {
     setDataState({ ...dataState });
   }
 
+  function removeAllData() {
+    setDataState({ network: undefined, algo: "" });
+  }
+
   return (
     <div className="flex flex-1">
       <div className="flex w-96">
-        <Sidebar updateData={updateNetworkState} />
+        <Sidebar
+          updateData={updateNetworkState}
+          removeAllData={removeAllData}
+        />
       </div>
       <div className="flex flex-1 flex-col">
         {dataState.network !== undefined && (

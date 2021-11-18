@@ -5,9 +5,10 @@ import { convertTopology } from "../utils/topology";
 
 type SidebarType = {
   updateData: any;
+  removeAllData: () => any;
 };
 
-function Sidebar({ updateData }: SidebarType) {
+function Sidebar({ updateData, removeAllData }: SidebarType) {
   const [errors, setErrors] = React.useState({
     errMask: false,
     errRouters: false,
@@ -46,6 +47,7 @@ function Sidebar({ updateData }: SidebarType) {
   const removeNetwork = (e: React.MouseEvent<Element, MouseEvent>) => {
     e.preventDefault();
     setNetworkInitialized(false);
+    removeAllData();
   };
 
   const sendData = (e: React.FormEvent) => {
