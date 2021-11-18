@@ -49,7 +49,7 @@ function App() {
       <div className="flex flex-1 flex-col">
         {dataState.network !== undefined && (
           <>
-            <Graph data={dataState} />
+            <Graph data={dataState.network} />
             <RoutingTable
               data={dataState.network}
               updateStatusFunction={updateRouterStatus}
