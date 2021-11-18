@@ -1,7 +1,6 @@
 import { Status, Topology } from "../models/enum";
 import Network from "../models/Network";
 import Router from "../models/Router";
-import { ConnectedRouterDataType } from "../models/types/types";
 
 /**
  * @description Init the full network
@@ -19,12 +18,7 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
         const ipRouter = valuesIp.join(".");
         */
     const name: string = `Router-${i}`;
-    const newRouter = new Router(
-      i,
-      name,
-      Status.SERVER_UP,
-      new Map<string, ConnectedRouterDataType>(),
-    );
+    const newRouter = new Router(i, name, Status.SERVER_UP, []);
     routerCollection.push(newRouter);
   }
   //INIT ROUTERS FOR PROVIDED TOPOLOGY
@@ -62,10 +56,8 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
             Math.random() * (lenNewCollection - 0) + 0,
           );
           let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
-          actualRouter!.addConnectedRouter(
-            collectionWithoutR[randomRouter],
-            randomPonderation,
-          );
+          collectionWithoutR[randomRouter].setPonderation(randomPonderation);
+          actualRouter!.addConnectedRouter(collectionWithoutR[randomRouter]);
           //remove router added from the collection to avoid multiple connection with same router
           collectionWithoutR.filter(
             (rf) => rf.getId() !== collectionWithoutR[randomRouter].getId(),

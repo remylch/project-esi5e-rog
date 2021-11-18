@@ -1,8 +1,13 @@
 import React from "react";
 import { initNetwork } from "../controller/NetworkController";
+import Network from "../models/Network";
 import { convertTopology } from "../utils/topology";
 
-function Sidebar() {
+type SidebarType = {
+  updateData: any;
+};
+
+function Sidebar({ updateData }: SidebarType) {
   const [errors, setErrors] = React.useState({
     errMask: false,
     errRouters: false,
@@ -17,7 +22,6 @@ function Sidebar() {
   const [networkInitialized, setNetworkInitialized] =
     React.useState<boolean>(false);
   const [topology, setTopology] = React.useState<string>("");
-  const [mask, setMask] = React.useState<string>("");
   const [nbRouters, setNbRouters] = React.useState<number>(0);
   const [algo, setAlgo] = React.useState<string>("");
 
@@ -54,7 +58,8 @@ function Sidebar() {
       setErrors({ ...errors, errForm: true });
       return;
     }
-    initNetwork(nbRouters, convertTopology(topology));
+    const network: Network = initNetwork(nbRouters, convertTopology(topology));
+    updateData(network); // update the data state on the app component
     setNetworkInitialized(true); //open box when network is init
   };
 

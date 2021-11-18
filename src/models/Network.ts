@@ -9,8 +9,8 @@ class Network {
     private topology?: Topology,
   ) {}
 
-  getRouters(): Router[] | null {
-    return this.routers || null;
+  getRouters(): Router[] {
+    return this.routers || [];
   }
 
   getAlgo(): string | null {

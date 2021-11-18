@@ -20,16 +20,26 @@ function App() {
     setDataState({ ...dataState, network });
   };
 
+  function updateRouterStatus(id: number) {
+    let router = dataState.network?.getRouters().find((r) => r.getId() === id);
+    router?.changeStatus();
+    console.log(dataState.network?.getRouters());
+    setDataState({ ...dataState }); //update data state with the actual data state to refresh the component
+  }
+
   return (
     <div className="flex flex-1">
       <div className="flex w-96">
-        <Sidebar />
+        <Sidebar updateData={updateNetworkState} />
       </div>
       <div className="flex flex-1 flex-col">
         {dataState.network !== undefined && (
           <>
             <Graph data={dataState} />
-            <RoutingTable data={dataState.network} />
+            <RoutingTable
+              data={dataState.network}
+              updateStatusFunction={updateRouterStatus}
+            />
           </>
         )}
       </div>

@@ -1,4 +1,3 @@
-import { ConnectedRouterDataType } from "../models/types/types";
 import { Status } from "./enum";
 
 class Router {
@@ -6,15 +5,16 @@ class Router {
     private id: number,
     private name: string,
     private status: Status,
-    private connectedRouters: Map<string, ConnectedRouterDataType>, // connection : <RouterName,Ponderation to reach it>
+    private connectedRouters: Router[], // connection : <RouterName,Ponderation to reach it>
+    private ponderation?: number,
   ) {}
 
   canCommunicate(routerToReach: Router): boolean {
-    return false;
+    return this.connectedRouters.includes(routerToReach);
   }
 
-  getConnections(): Map<string, ConnectedRouterDataType> | null {
-    return this.connectedRouters || null;
+  getConnections(): Router[] {
+    return this.connectedRouters;
   }
 
   getId(): number {
@@ -30,12 +30,36 @@ class Router {
     return `${value}ms to reach ${routerToReach.getName()}`;
   }
 
-  getStatus(): Status {
-    return this.status;
+  getStatus(): String {
+    return this.status.toString();
   }
 
-  addConnectedRouter(router: Router, ponderation: number): void {
-    this.connectedRouters.set(router.getName(), { router, ponderation });
+  changeStatus(): void {
+    switch (this.status) {
+      case Status.SERVER_UP:
+        this.status = Status.SERVER_DOWN;
+        break;
+      case Status.SERVER_DOWN:
+        this.status = Status.SERVER_UP;
+        break;
+    }
+  }
+
+  getNbConnectedRouters(): number {
+    return this.connectedRouters.length;
+  }
+
+  addConnectedRouter(router: Router): void {
+    this.connectedRouters.push(router);
+  }
+
+  setPonderation(ponderation: number): void {
+    this.ponderation = ponderation;
+  }
+
+  getPonderation(): number {
+    if (this.ponderation === undefined) return 0;
+    else return this.ponderation;
   }
 }
 

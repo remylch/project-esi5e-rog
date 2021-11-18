@@ -1,26 +1,19 @@
-import React from "react";
-import { Status } from "../models/enum";
-import Router from "../models/Router";
+import Network from "../models/Network";
 
 type RoutingTable = {
-  data: null | undefined | {};
+  data: undefined | Network;
+  updateStatusFunction: (id: number) => any;
 };
 
-function RoutingTable({ data }: RoutingTable) {
-  const routers = [
-    {
-      name: "Router-1",
-      interfaces: ["i1", "i2"],
-      status: Status.SERVER_UP,
-      connectedRouter: ["Router-2"],
-    },
-    {
-      name: "Router-2",
-      interfaces: [],
-      status: Status.SERVER_DOWN,
-      connectedRouter: [],
-    },
-  ];
+function RoutingTable({ data, updateStatusFunction }: RoutingTable) {
+  /*
+  function changeStatus(id: number) {
+    const router = data?.getRouters().find((r) => r.getId() === id);
+    console.log("router finded", router);
+    router?.changeStatus();
+  }
+  */
+
   return (
     <div className="flex h-56 w-full">
       <div className="flex flex-col w-full">
@@ -55,65 +48,91 @@ function RoutingTable({ data }: RoutingTable) {
                     >
                       Connected routers
                     </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Ponderation
+                    </th>
                     <th scope="col" className="relative px-6 py-3">
                       <span className="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {routers.map((router) => {
-                    const nbConnectedRouters = router.connectedRouter.length;
-                    return (
-                      <tr key={router.name}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="">
-                              <div className="text-sm font-medium text-gray-900">
-                                {router.name}
+                  {data !== undefined &&
+                    data.getRouters().map((router) => {
+                      const nbConnectedRouters = router.getNbConnectedRouters();
+                      return (
+                        <tr key={router.getId()}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {router.getName()}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              router.status === "SERVER_UP"
-                                ? "text-green-800 bg-green-100"
-                                : "text-red-800 bg-red-100"
-                            } `}
-                          >
-                            {router.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {nbConnectedRouters}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {router.connectedRouter.length !== 0 ? (
-                            <select>
-                              <option value=""></option>
-                              {router.connectedRouter.map((r) => (
-                                <option value={r}>{r}</option>
-                              ))}
-                            </select>
-                          ) : (
-                            <label>Aucune connexion</label>
-                          )}
-                        </td>
-                        {/*
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                router.getStatus() === "SERVER_UP"
+                                  ? "text-green-800 bg-green-100"
+                                  : "text-red-800 bg-red-100"
+                              } `}
+                            >
+                              {router.getStatus()}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                            {nbConnectedRouters}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                            {nbConnectedRouters !== 0 ? (
+                              <select>
+                                <option value=""></option>
+                                {router.getConnections().map((r) => (
+                                  <option value={r.getName()}>
+                                    {r.getName()}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <label>Aucune connexion</label>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                            {router.getPonderation()}
+                          </td>
+
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <a
-                            href="#"
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Edit
-                          </a>
-                        </td>  
-                        */}
-                      </tr>
-                    );
-                  })}
+                            {router.getStatus() === "SERVER_UP" ? (
+                              <a
+                                href="#"
+                                className="text-indigo-600 hover:text-indigo-900"
+                                onClick={() =>
+                                  updateStatusFunction(router.getId())
+                                }
+                              >
+                                Disable
+                              </a>
+                            ) : (
+                              <a
+                                href="#"
+                                className="text-indigo-600 hover:text-indigo-900"
+                                onClick={() =>
+                                  updateStatusFunction(router.getId())
+                                }
+                              >
+                                Enable
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
