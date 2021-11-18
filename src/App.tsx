@@ -27,6 +27,13 @@ function App() {
     setDataState({ ...dataState }); //update data state with the actual data state to refresh the component
   }
 
+  function generateNewPonderation(id: number) {
+    let router = dataState.network?.getRouters().find((r) => r.getId() === id);
+    let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
+    router?.setPonderation(randomPonderation);
+    setDataState({ ...dataState });
+  }
+
   return (
     <div className="flex flex-1">
       <div className="flex w-96">
@@ -39,6 +46,7 @@ function App() {
             <RoutingTable
               data={dataState.network}
               updateStatusFunction={updateRouterStatus}
+              generateNewPonderation={generateNewPonderation}
             />
           </>
         )}

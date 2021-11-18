@@ -3,9 +3,14 @@ import Network from "../models/Network";
 type RoutingTable = {
   data: undefined | Network;
   updateStatusFunction: (id: number) => any;
+  generateNewPonderation: (id: number) => any;
 };
 
-function RoutingTable({ data, updateStatusFunction }: RoutingTable) {
+function RoutingTable({
+  data,
+  updateStatusFunction,
+  generateNewPonderation,
+}: RoutingTable) {
   /*
   function changeStatus(id: number) {
     const router = data?.getRouters().find((r) => r.getId() === id);
@@ -103,8 +108,25 @@ function RoutingTable({ data, updateStatusFunction }: RoutingTable) {
                               <label>Aucune connexion</label>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {router.getPonderation()}
+                          <td className="px-6 flex py-4 whitespace-nowrap text-sm text-gray-500 text-center gap-4 justify-center items-center">
+                            {router.getPonderation()}{" "}
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6 hover:text-indigo-900 cursor-pointer"
+                              onClick={() =>
+                                generateNewPonderation(router.getId())
+                              }
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                              />
+                            </svg>
                           </td>
 
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

@@ -53,6 +53,7 @@ class Router {
     this.connectedRouters.push(router);
   }
 
+  //Ponderation
   setPonderation(ponderation: number): void {
     this.ponderation = ponderation;
   }
