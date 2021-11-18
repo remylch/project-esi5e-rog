@@ -29,16 +29,22 @@ function Graph({ data }: GraphType) {
           //check if the link already exist in a direction or in an other.
           //If not , create the link and add it
           if (
-            !graphObj.links.includes({ source: r, target: connexion }) ||
-            !graphObj.links.includes({ source: connexion, target: r })
-          ) {
-            const link = { source: r, target: connexion };
-            graphObj.links.push(link);
-          }
+            graphObj.links.includes({ source: r, target: connexion }) ||
+            graphObj.links.includes({ source: connexion, target: r })
+          )
+            return;
+          if (
+            r.getStatus() === "SERVER_DOWN" ||
+            connexion.getStatus() === "SERVER_DOWN"
+          )
+            return;
+
+          const link = { source: r, target: connexion };
+          graphObj.links.push(link);
         });
       });
 
-      //
+      console.log("graph obj ", graphObj);
     }
   });
 
