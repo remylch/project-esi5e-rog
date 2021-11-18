@@ -17,6 +17,19 @@ code {
     monospace;
 }
 
+#d3 div {
+  background-color: orange;
+  color: white;
+  padding: 8px;
+  border-radius: 25px;
+  height: 35px;
+  min-width: 75px;
+  display: inline-block;
+  text-align: center;
+  font-size: small;
+  margin: 2px;
+}
+
 @layer components {
   .btn-inline {
     @apply py-2 px-4 font-semibold rounded-lg shadow-md text-white bg-blue-700 hover:bg-blue-800;
