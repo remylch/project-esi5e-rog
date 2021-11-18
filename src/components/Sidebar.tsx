@@ -22,7 +22,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
 
   const [networkInitialized, setNetworkInitialized] =
     React.useState<boolean>(false);
-  const [topology, setTopology] = React.useState<string>("");
+  const [topology, setTopology] = React.useState<string>("Random");
   const [nbRouters, setNbRouters] = React.useState<number>(0);
   const [algo, setAlgo] = React.useState<string>("");
 
