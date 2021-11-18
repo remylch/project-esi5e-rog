@@ -12,7 +12,7 @@ function RoutingTable({
   generateNewPonderation,
 }: RoutingTable) {
   return (
-    <div className="flex h-56 w-full ">
+    <div className="flex h-56 w-full overflow-y overflow-y-scroll">
       <div className="flex flex-col w-full">
         <div className="w-full">
           <div className=" align-middle inline-block min-w-full w-full">
