@@ -30,6 +30,22 @@ code {
   margin: 2px;
 }
 
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #fff;
+  stroke-opacity: 1;
+  stroke-width: 1px;
+}
+
+.label {
+  font-size: 10px;
+  fill: #fff;
+}
+
 @layer components {
   .btn-inline {
     @apply py-2 px-4 font-semibold rounded-lg shadow-md text-white bg-blue-700 hover:bg-blue-800;
