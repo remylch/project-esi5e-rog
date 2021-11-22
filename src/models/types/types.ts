@@ -24,3 +24,10 @@ export type point = {
   x: number;
   y: number;
 };
+
+export type datum = {
+  x: number;
+  y: number;
+  fx: number | null;
+  fy: number | null;
+};

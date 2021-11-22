@@ -1,9 +1,11 @@
 import React from "react";
+import { useRecoilState } from "recoil";
 import "./App.css";
 import Graph from "./components/Graph";
 import RoutingTable from "./components/RoutingTable";
 import Sidebar from "./components/Sidebar";
 import Network from "./models/Network";
+import { counterTest } from "../src/store/store";
 
 type DataStateType = {
   network: Network | undefined;
@@ -16,6 +18,8 @@ function App() {
     algo: "",
   });
 
+  const [counter, setCounter] = useRecoilState(counterTest);
+
   const updateNetworkState = (network: Network) => {
     setDataState({ ...dataState, network });
   };
@@ -23,8 +27,8 @@ function App() {
   function updateRouterStatus(id: number) {
     let router = dataState.network?.getRouters().find((r) => r.getId() === id);
     router?.changeStatus();
-    console.log(dataState.network?.getRouters());
     setDataState({ ...dataState }); //update data state with the actual data state to refresh the component
+    setCounter(counter + 1);
   }
 
   function generateNewPonderation(id: number) {
