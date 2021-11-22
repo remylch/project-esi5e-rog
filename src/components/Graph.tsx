@@ -9,8 +9,11 @@ type DataType = {
 };
 
 function Graph({ data }: DataType) {
-  const d3Chart = React.useRef<SVGSVGElement>();
+  const d3Chart = React.useRef<SVGSVGElement>(); // ref element of the html svg
 
+  /**
+   * @description init the data to create the graph
+   */
   const initDataToUse = () => {
     //with data create a graph js object
     if (data) {
@@ -55,13 +58,13 @@ function Graph({ data }: DataType) {
   };
 
   useEffect(() => {
-    const dataToUse = initDataToUse();
+    const dataToUse = initDataToUse(); //data that we prepare before create the graph
     if (dataToUse) console.log("ok", dataToUse);
     //select the global svg
-    const context: any = d3.select(d3Chart.current);
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
+    //const color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    const simulation = d3
+    const simulation = d3 // create the simulation
       .forceSimulation()
       .nodes(dataToUse.nodes as SimulationNodeDatum[])
       .force(
@@ -105,11 +108,12 @@ function Graph({ data }: DataType) {
       .attr("strokeWidth", 0.5)
       .attr("stroke", "white");
 
+    //give to each node his name (router.id) permit to rely routers with link later
     node.append("title").text(function (d: d3Node) {
       return d.id;
     });
 
-    const label = context
+    const label = context // create the container of all text <g> and all the label of the graph based of data.nodes
       .append("g")
       .attr("className", "labels")
       .selectAll("label")
@@ -121,16 +125,19 @@ function Graph({ data }: DataType) {
       })
       .attr("className", "label");
 
+    //place the name of the router of center of it
     label.style("text-anchor", "middle").style("font-size", "10px");
 
+    //create the routers of the graph
     simulation
       .nodes(dataToUse.nodes as SimulationNodeDatum[])
       .on("tick", ticked); // draw the graph
 
+    //create the links of the graph between the routers
     //@ts-ignore
     simulation.force("link").links(dataToUse.links);
-    //simulation.force("link", d3.forceLink().links(dataToUse.links));
 
+    /* functions to move the element of graph (router) */
     function dragStarted(d: any) {
       if (!d.active) {
         simulation.alphaTarget(0.3).restart();
@@ -152,6 +159,7 @@ function Graph({ data }: DataType) {
       d.fy = null;
     }
 
+    //place the differents element in graph
     function ticked() {
       link
         .attr("x1", function (d) {
@@ -183,7 +191,7 @@ function Graph({ data }: DataType) {
           return d.y;
         });
     }
-  }, []);
+  }, [data]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
 
   return (
     <svg
