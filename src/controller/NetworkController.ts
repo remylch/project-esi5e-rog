@@ -69,19 +69,6 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
         let randomNbConnexion = Math.floor(
           Math.random() * (lenNewCollection - 0) + 0,
         );
-        console.log(`Router${r} will have ${randomNbConnexion} connexions`);
-        //TODO: check OTHER ROUTER CONNEXION => IF OTHER.CONNECTEDROUTER.INCLUDE THIS.R.GETNAME => ADD ROUTER TO the connexion of this.R
-        //enable the connexions bi-directionnaly if they are already set in one direction
-        collectionWithoutR.forEach((rf: Router) => {
-          rf.getConnections().forEach((connection) => {
-            if (connection.getName() === actualRouter.getName()) {
-              actualRouter.addConnectedRouter(connection);
-              randomNbConnexion -= 1;
-            }
-          });
-        });
-
-        //-------------------------------------------------------------
 
         for (let i = 0; i < randomNbConnexion; i++) {
           //get random element of routerCollection
@@ -90,8 +77,6 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           );
           //setup random ponderation
           let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
-
-          //BUG:
           collectionWithoutR[randomRouter].setPonderation(randomPonderation);
           actualRouter.addConnectedRouter(collectionWithoutR[randomRouter]);
           //remove router added from the collection to avoid multiple connection with same router
@@ -104,6 +89,21 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           lenNewCollection = lenNewCollection - 1;
         }
       }
+       console.log("router collection before bidirectionnal : ", routerCollection);
+        //enable the connexions bi-directionnaly if they are already set in one direction
+        routerCollection.forEach((rcItem: Router) => {
+          rcItem.getConnections().forEach((connection : Router) => {
+            //console.log(`${rcItem.getConnections().includes(connection)} and  ${connection.getConnections().includes(rcItem)}`)
+            if (!rcItem.getConnections().includes(connection)) {
+              //console.log(`router ${connection.getName()} will be linked with ${actualRouter.getName()}`)
+              rcItem.addConnectedRouter(connection);
+              //randomNbConnexion -= 1;  
+            }
+            if(!connection.getConnections().includes(rcItem)) {
+              connection.addConnectedRouter(rcItem);
+            }
+          });
+        });
   }
   return new Network(routerCollection, undefined, topology); //algo undefined for now
 };
