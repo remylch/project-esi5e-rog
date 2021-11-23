@@ -43,7 +43,6 @@ function Graph({ data }: DataType) {
               .getRouters()
               .find((rf) => rf.getName() === `Router-${r.getId() + 1}`);
             //if exist create link with him else no router left so connect to the first one
-
             if (!routerToFind) {
               //link r with firt router of the graph
               const link: d3Link = {
@@ -93,7 +92,6 @@ function Graph({ data }: DataType) {
               graphObj.links.push(link);
             });
           });
-          console.log("graphobj : ", graphObj);
           return graphObj;
       }
     }
@@ -109,9 +107,9 @@ function Graph({ data }: DataType) {
       d3Chart.current.removeChild(links);
       d3Chart.current.removeChild(labels);
     }
-    console.log("data", data);
+    //console.log("data", data);
     const dataToUse = initDataToUse(); //data that we prepare before create the graph
-    console.log("data updated", dataToUse);
+    //console.log("data updated", dataToUse);
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
@@ -222,7 +220,7 @@ function Graph({ data }: DataType) {
       d.fx = event.x; //null to re-center
       d.fy = event.y; // null to re-center
     }
-
+    /*
     function zoom() {
       const container = d3.select("#d3");
       const zoom = d3
@@ -246,6 +244,7 @@ function Graph({ data }: DataType) {
             .attr("width");
         });
     }
+    */
 
     //place the differents element in graph
     function ticked() {
