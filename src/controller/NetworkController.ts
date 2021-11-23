@@ -71,6 +71,18 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
         );
         console.log(`Router${r} will have ${randomNbConnexion} connexions`);
         //TODO: check OTHER ROUTER CONNEXION => IF OTHER.CONNECTEDROUTER.INCLUDE THIS.R.GETNAME => ADD ROUTER TO the connexion of this.R
+        //enable the connexions bi-directionnaly if they are already set in one direction
+        collectionWithoutR.forEach((rf: Router) => {
+          rf.getConnections().forEach((connection) => {
+            if (connection.getName() === actualRouter.getName()) {
+              actualRouter.addConnectedRouter(connection);
+              randomNbConnexion -= 1;
+            }
+          });
+        });
+
+        //-------------------------------------------------------------
+
         for (let i = 0; i < randomNbConnexion; i++) {
           //get random element of routerCollection
           let randomRouter = Math.floor(
