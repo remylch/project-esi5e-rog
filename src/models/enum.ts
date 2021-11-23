@@ -1,0 +1,13 @@
+export enum Topology {
+  RANDOM = "RANDOM",
+  RING = "RING",
+  STAR = "STAR",
+  TREE = "TREE",
+  BUS_A_DIFFUSION = "BUS_A_DIFFUSION",
+  ETOILE_A_DIFFUSION = "ETOILE_A_DIFFUSION",
+}
+
+export enum Status {
+  SERVER_UP = "SERVER_UP",
+  SERVER_DOWN = "SERVER_DOWN",
+}
