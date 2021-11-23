@@ -5,6 +5,8 @@ import { d3Link, d3Node, datum, GraphType, point } from "../models/types/types";
 import { D3DragEvent, SimulationNodeDatum } from "d3";
 import { useRecoilState } from "recoil";
 import { counterTest } from "../store/store";
+import { Topology } from "../models/enum";
+import Router from "../models/Router";
 
 type DataType = {
   data: Network | undefined;
@@ -27,38 +29,73 @@ function Graph({ data }: DataType) {
         links: [],
       };
 
-      //create every links and push them into our graph object
-      data.getRouters().forEach((r) => {
-        graphObj.nodes.push({ id: r.getName(), value: r.getPonderation() });
-        r.getConnections().forEach((connexion) => {
-          //check if the link already exist in a direction or in an other.
-          //If not , create the link and add it
-          if (
-            graphObj.links.includes({
-              source: r.getName(),
-              target: connexion.getName(),
-            }) ||
-            graphObj.links.includes({
-              source: connexion.getName(),
-              target: r.getName(),
-            })
-          )
-            return;
-          //if one of the router is down break the link
-          if (
-            r.getStatus() === "SERVER_DOWN" ||
-            connexion.getStatus() === "SERVER_DOWN"
-          )
-            return;
-          const link: d3Link = {
-            source: r.getName(),
-            target: connexion.getName(),
-          };
-          graphObj.links.push(link);
-        });
-      });
-      console.log("graphobj : ", graphObj);
-      return graphObj;
+      //INIT ROUTERS FOR PROVIDED TOPOLOGY
+      switch (data.getTopology()) {
+        case Topology.BUS_A_DIFFUSION:
+          break;
+        case Topology.ETOILE_A_DIFFUSION:
+          break;
+        case Topology.RING:
+          data.getRouters().forEach((r) => {
+            graphObj.nodes.push({ id: r.getName(), value: r.getPonderation() });
+            //find next router in all the routers
+            const routerToFind: Router | undefined = data
+              .getRouters()
+              .find((rf) => rf.getName() === `Router-${r.getId() + 1}`);
+            //if exist create link with him else no router left so connect to the first one
+
+            if (!routerToFind) {
+              //link r with firt router of the graph
+              const link: d3Link = {
+                source: r.getName(),
+                target: "Router-0",
+              };
+              graphObj.links.push(link);
+            } else {
+              const link: d3Link = {
+                source: r.getName(),
+                target: routerToFind.getName(),
+              };
+              graphObj.links.push(link);
+            }
+          });
+          return graphObj;
+        case Topology.TREE:
+          break;
+        case Topology.RANDOM:
+          //create every links and push them into our graph object
+          data.getRouters().forEach((r) => {
+            graphObj.nodes.push({ id: r.getName(), value: r.getPonderation() });
+            r.getConnections().forEach((connexion) => {
+              //check if the link already exist in a direction or in an other.
+              //If not , create the link and add it
+              if (
+                graphObj.links.includes({
+                  source: r.getName(),
+                  target: connexion.getName(),
+                }) ||
+                graphObj.links.includes({
+                  source: connexion.getName(),
+                  target: r.getName(),
+                })
+              )
+                return;
+              //if one of the router is down break the link
+              if (
+                r.getStatus() === "SERVER_DOWN" ||
+                connexion.getStatus() === "SERVER_DOWN"
+              )
+                return;
+              const link: d3Link = {
+                source: r.getName(),
+                target: connexion.getName(),
+              };
+              graphObj.links.push(link);
+            });
+          });
+          console.log("graphobj : ", graphObj);
+          return graphObj;
+      }
     }
   };
 
