@@ -31,13 +31,6 @@ function App() {
     setCounter(counter + 1);
   }
 
-  function generateNewPonderation(id: number) {
-    let router = dataState.network?.getRouters().find((r) => r.getId() === id);
-    let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
-    router?.setPonderation(randomPonderation);
-    setDataState({ ...dataState });
-  }
-
   function removeAllData() {
     setDataState({ network: undefined, algo: "" });
   }
@@ -57,7 +50,6 @@ function App() {
             <RoutingTable
               data={dataState.network}
               updateStatusFunction={updateRouterStatus}
-              generateNewPonderation={generateNewPonderation}
             />
           </>
         )}

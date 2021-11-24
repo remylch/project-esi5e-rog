@@ -7,12 +7,14 @@ export type ConnectedRouterDataType = {
 
 export type d3Node = {
   id: String;
-  value: number;
+  //value: number;
 };
 
 export type d3Link = {
   source: string;
   target: string;
+  weight?: number;
+  color?: string;
 };
 
 export type GraphType = {

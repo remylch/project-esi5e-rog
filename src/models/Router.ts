@@ -6,7 +6,6 @@ class Router {
     private name: string,
     private status: Status,
     private connectedRouters: Router[], // connection : <RouterName,Ponderation to reach it>
-    private ponderation?: number,
   ) {}
 
   canCommunicate(routerToReach: Router): boolean {
@@ -52,7 +51,7 @@ class Router {
   addConnectedRouter(router: Router): void {
     this.connectedRouters.push(router);
   }
-
+  /*
   //Ponderation
   setPonderation(ponderation: number): void {
     this.ponderation = ponderation;
@@ -62,6 +61,7 @@ class Router {
     if (this.ponderation === undefined) return 0;
     else return this.ponderation;
   }
+  */
 }
 
 export default Router;

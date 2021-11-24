@@ -37,7 +37,7 @@ function Graph({ data }: DataType) {
           break;
         case Topology.RING:
           data.getRouters().forEach((r) => {
-            graphObj.nodes.push({ id: r.getName(), value: r.getPonderation() });
+            graphObj.nodes.push({ id: r.getName() });
             //find next router in all the routers
             const routerToFind: Router | undefined = data
               .getRouters()
@@ -51,9 +51,14 @@ function Graph({ data }: DataType) {
               };
               graphObj.links.push(link);
             } else {
+              //setup random ponderation
+              let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
+
               const link: d3Link = {
                 source: r.getName(),
                 target: routerToFind.getName(),
+                weight: randomPonderation,
+                color: "red",
               };
               graphObj.links.push(link);
             }
@@ -64,7 +69,7 @@ function Graph({ data }: DataType) {
         case Topology.RANDOM:
           //create every links and push them into our graph object
           data.getRouters().forEach((r) => {
-            graphObj.nodes.push({ id: r.getName(), value: r.getPonderation() });
+            graphObj.nodes.push({ id: r.getName() });
             r.getConnections().forEach((connexion) => {
               //check if the link already exist in a direction or in an other.
               //If not , create the link and add it
@@ -85,13 +90,19 @@ function Graph({ data }: DataType) {
                 connexion.getStatus() === "SERVER_DOWN"
               )
                 return;
+
+              //setup random ponderation
+              let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
+
               const link: d3Link = {
                 source: r.getName(),
                 target: connexion.getName(),
+                weight: randomPonderation,
               };
               graphObj.links.push(link);
             });
           });
+          //update graph state
           return graphObj;
       }
     }
@@ -107,13 +118,13 @@ function Graph({ data }: DataType) {
       d3Chart.current.removeChild(links);
       d3Chart.current.removeChild(labels);
     }
-    //console.log("data", data);
+
     const dataToUse = initDataToUse(); //data that we prepare before create the graph
-    //console.log("data updated", dataToUse);
+
+    console.log("data used : ", dataToUse);
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
-    //const color = d3.scaleOrdinal(d3.schemeCategory10);
 
     const simulation = d3 // create the simulation
       .forceSimulation()
@@ -160,7 +171,9 @@ function Graph({ data }: DataType) {
       .enter()
       .append("line")
       .attr("strokeWidth", 0.5)
-      .attr("stroke", "white");
+      .attr("stroke", (d: d3Link) => {
+        return d.color ? d.color : "white";
+      });
 
     //give to each node his name (router.id) permit to rely routers with link later
     node.append("title").text(function (d: d3Node) {
@@ -180,8 +193,22 @@ function Graph({ data }: DataType) {
       })
       .attr("className", "label");
 
+    const weight = context
+      .append("g")
+      .attr("className", "weights")
+      .attr("id", "weights")
+      .selectAll("weight")
+      .data(dataToUse.links)
+      .enter()
+      .append("text")
+      .text((d: d3Link) => {
+        return d.weight ? d.weight.toString() : "0";
+      });
+
     //place the name of the router of center of it
     label.style("text-anchor", "middle").style("font-size", "10px");
+
+    weight.style("font-size", "15px").style("color", "black");
 
     //create the routers of the graph
     simulation
@@ -220,31 +247,6 @@ function Graph({ data }: DataType) {
       d.fx = event.x; //null to re-center
       d.fy = event.y; // null to re-center
     }
-    /*
-    function zoom() {
-      const container = d3.select("#d3");
-      const zoom = d3
-        .zoom()
-        .scaleExtent([1, 8])
-        .translateExtent([
-          [100, 100],
-          [300, 300],
-        ])
-        .extent([
-          [100, 100],
-          [200, 200],
-        ])
-        .on("zoom", (event) => {
-          let { x, y, k } = event.transform;
-          x = 0;
-          y = 0;
-          k *= 1;
-          container
-            .attr("transform", `translate(${x}, ${y})scale(${k})`)
-            .attr("width");
-        });
-    }
-    */
 
     //place the differents element in graph
     function ticked() {
@@ -260,6 +262,14 @@ function Graph({ data }: DataType) {
         })
         .attr("y2", function (d) {
           return (d as { target: point }).target.y;
+        });
+
+      weight
+        .attr("x", function (d: { source: point; target: point }) {
+          return (d.source.x + d.target.x) / 2;
+        })
+        .attr("y", function (d: { source: point; target: point }) {
+          return (d.source.y + d.target.y) / 2 + 10;
         });
 
       node
