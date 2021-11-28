@@ -58,7 +58,6 @@ function Graph({ data }: DataType) {
                 source: r.getName(),
                 target: routerToFind.getName(),
                 weight: randomPonderation,
-                color: "red",
               };
               graphObj.links.push(link);
             }
