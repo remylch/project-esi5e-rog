@@ -86,18 +86,11 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           lenNewCollection = lenNewCollection - 1;
         }
       }
-      console.log(
-        "router collection before bidirectionnal : ",
-        routerCollection,
-      );
       //enable the connexions bi-directionnaly if they are already set in one direction
       routerCollection.forEach((rcItem: Router) => {
         rcItem.getConnections().forEach((connection: Router) => {
-          //console.log(`${rcItem.getConnections().includes(connection)} and  ${connection.getConnections().includes(rcItem)}`)
           if (!rcItem.getConnections().includes(connection)) {
-            //console.log(`router ${connection.getName()} will be linked with ${actualRouter.getName()}`)
             rcItem.addConnectedRouter(connection);
-            //randomNbConnexion -= 1;
           }
           if (!connection.getConnections().includes(rcItem)) {
             connection.addConnectedRouter(rcItem);

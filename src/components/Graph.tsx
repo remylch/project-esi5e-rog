@@ -4,9 +4,10 @@ import Network from "../models/Network";
 import { d3Link, d3Node, datum, GraphType, point } from "../models/types/types";
 import { D3DragEvent, SimulationNodeDatum } from "d3";
 import { useRecoilState } from "recoil";
-import { counterTest } from "../store/store";
+import { counterTest, dataForDijkstraState, routersState } from "../store/store";
 import { Topology } from "../models/enum";
 import Router from "../models/Router";
+import { djisktra, djisktra2, setupDataForDijkstra, setupDataForDijkstraV2 } from "../utils/algorithms/Djisktra";
 
 type DataType = {
   data: Network | undefined;
@@ -16,6 +17,8 @@ function Graph({ data }: DataType) {
   const d3Chart = React.useRef<SVGSVGElement>(); // ref element of the html svg
 
   const [counter] = useRecoilState(counterTest);
+  const [dataDijsktra , setDataDijkstra] = useRecoilState(dataForDijkstraState);
+  const [routers, setRouters] = useRecoilState(routersState);
 
   /**
    * @description init the data to create the graph
@@ -23,6 +26,7 @@ function Graph({ data }: DataType) {
   const initDataToUse = () => {
     //with data create a graph js object
     if (data) {
+      data.getRouters().forEach((r: Router) => setRouters((oldRouters) => [...oldRouters, {name: r.getName()}]));
       //init graph
       const graphObj: GraphType = {
         nodes: [], // arr is an array off router
@@ -99,6 +103,7 @@ function Graph({ data }: DataType) {
                 weight: randomPonderation,
               };
               graphObj.links.push(link);
+             
             });
           });
           //update graph state
@@ -120,7 +125,13 @@ function Graph({ data }: DataType) {
 
     const dataToUse = initDataToUse(); //data that we prepare before create the graph
 
-    console.log("data used : ", dataToUse);
+    //setup data for dijkstra
+    const preparedData = setupDataForDijkstraV2(dataToUse.nodes, dataToUse.links);
+    console.log("preparedData : ", preparedData);
+    setDataDijkstra(preparedData);
+    //console.log("data for dijkstra : ", dataDijsktra)
+
+    console.log("data used for the graph : ", dataToUse);
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
@@ -287,6 +298,9 @@ function Graph({ data }: DataType) {
           return d.y;
         });
     }
+
+
+
   }, [counter]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
 
   return (

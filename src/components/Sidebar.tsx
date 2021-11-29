@@ -2,6 +2,8 @@ import React from "react";
 import { initNetwork } from "../controller/NetworkController";
 import Network from "../models/Network";
 import { convertTopology } from "../utils/topology";
+import { useRecoilState } from "recoil";
+import { endpointsState, routersState } from "../store/store";
 
 type SidebarType = {
   updateData: any;
@@ -15,10 +17,8 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
     errForm: false,
   });
 
-  const [routersName, setRoutersName] = React.useState({
-    r1: "",
-    r2: "",
-  });
+  const [endpoints, setEndpoints] = useRecoilState(endpointsState);
+  const [routers] = useRecoilState(routersState);
 
   const [networkInitialized, setNetworkInitialized] =
     React.useState<boolean>(false);
@@ -26,10 +26,18 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
   const [nbRouters, setNbRouters] = React.useState<number>(0);
   const [algo, setAlgo] = React.useState<string>("");
 
-  const handleChangeRouterName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.currentTarget;
-    setRoutersName({ ...routersName, [name]: value });
-  };
+  function handleChangeEnd(event: React.ChangeEvent<HTMLSelectElement>){
+    setEndpoints({...endpoints, end: event.target.value})
+  }
+
+  function handleChangeStart(event: React.ChangeEvent<HTMLSelectElement>){
+    setEndpoints({...endpoints, start: event.target.value})
+  }
+
+  React.useEffect(() => {
+    console.log(endpoints)
+  },[endpoints]);
+
   const handleChangeNbRouter = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNbRouters(parseInt(e.target.value));
   };
@@ -121,7 +129,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
         <>
           <section className="flex flex-col bg-white rounded-3xl mt-5 pt-3 pb-5">
             <div
-              className="flex items-center text-sm self-end mr-5 cursor-pointer text-white bg-gray-300 hover:bg-gray-400 p-1"
+              className="flex items-center text-sm self-end mr-5 cursor-pointer text-white bg-gray-300 hover:bg-gray-400 p-1 mb-2"
               onClick={removeNetwork}
             >
               <svg
@@ -142,14 +150,16 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
             </div>
 
             <div className="gap-5 flex items-center mx-5">
-              <input
-                className="input"
-                placeholder="Routeur 1"
-                type="text"
-                value={routersName.r1}
-                onChange={handleChangeRouterName}
-                name="r1"
-              />
+            <select
+              className="h-10 mt-1 block w-full rounded-lg ring ring-offset-2 focus:outline-none"
+              onChange={handleChangeStart}
+            >
+                <option></option>{
+                routers.map((item) => (
+                  <option>{item.name}</option>
+                )) 
+              }
+            </select>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10"
@@ -162,14 +172,17 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
                   clip-rule="evenodd"
                 />
               </svg>
-              <input
-                className="input"
-                placeholder="Routeur 2"
-                type="text"
-                value={routersName.r2}
-                onChange={handleChangeRouterName}
-                name="r2"
-              />
+              <select
+              className="h-10 mt-1 block w-full rounded-lg ring ring-offset-2 focus:outline-none"
+              onChange={handleChangeEnd}
+            >
+              <option></option>
+              {
+                routers.map((item) => (
+                  <option>{item.name}</option>
+                )) 
+              }
+            </select>
             </div>
             <span className="text-gray-700 mt-5 mx-5">
               Algorithme de routage
@@ -177,7 +190,8 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
             <select className="input self-center" onChange={handleChangeAlgo}>
               <option></option>
               <option>Djikstra</option>
-              <option>Ospf</option>
+              <option>Bellman ford</option>
+              <option>Hot potato</option>
             </select>
           </section>
           <button type="submit" className="btn-inline justify-end mt-5">
