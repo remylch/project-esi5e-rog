@@ -91,7 +91,7 @@ function Graph({ data }: DataType) {
                 return;
 
               //setup random ponderation
-              let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
+              let randomPonderation = Math.floor(Math.random() * (9 - 0) + 1);
 
               const link: d3Link = {
                 source: r.getName(),
@@ -109,17 +109,18 @@ function Graph({ data }: DataType) {
 
   useEffect(() => {
     //cleanup svg before re rendering
+    /*
     if (counter !== 0) {
-      /*
+      
       const nodes = document.getElementById("nodes");
       const links = document.getElementById("links");
       const labels = document.getElementById("labels");
       d3Chart.current.removeChild(nodes);
       d3Chart.current.removeChild(links);
       d3Chart.current.removeChild(labels);
-      */
+      
     }
-
+    */
     const dataToUse = initDataToUse(); //data that we prepare before create the graph
 
     console.log("data used : ", dataToUse);

@@ -23,7 +23,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
   const [networkInitialized, setNetworkInitialized] =
     React.useState<boolean>(false);
   const [topology, setTopology] = React.useState<string>("Random");
-  const [nbRouters, setNbRouters] = React.useState<number>(0);
+  const [nbRouters, setNbRouters] = React.useState<number>(3);
   const [algo, setAlgo] = React.useState<string>("");
 
   const handleChangeRouterName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +52,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
 
   const sendData = (e: React.FormEvent) => {
     e.preventDefault();
-    if (nbRouters === 0) {
+    if (nbRouters < 3 || nbRouters > 20) {
       setErrors({ ...errors, errRouters: true });
       return;
     }
@@ -75,7 +75,8 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
           <label className="w-3/4">
             <span>Nombe de routeurs</span>
             <input
-              min="0"
+              min="3"
+              max="20"
               className="input w-full"
               placeholder="Choisir le nombre de routeur"
               type="number"
@@ -105,7 +106,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
           )}
           {errors.errRouters && (
             <p className="text-red-500 mt-3">
-              Cannot create a network with 0 routers.
+              The number of router must be between 3 and 20 included.
             </p>
           )}
           {errors.errMask && (
