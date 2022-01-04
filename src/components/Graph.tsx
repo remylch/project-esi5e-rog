@@ -110,12 +110,14 @@ function Graph({ data }: DataType) {
   useEffect(() => {
     //cleanup svg before re rendering
     if (counter !== 0) {
+      /*
       const nodes = document.getElementById("nodes");
       const links = document.getElementById("links");
       const labels = document.getElementById("labels");
       d3Chart.current.removeChild(nodes);
       d3Chart.current.removeChild(links);
       d3Chart.current.removeChild(labels);
+      */
     }
 
     const dataToUse = initDataToUse(); //data that we prepare before create the graph
@@ -287,6 +289,16 @@ function Graph({ data }: DataType) {
           return d.y;
         });
     }
+
+    return () => {
+      console.log("test callback function");
+      //remove everything of the graph
+      simulation.stop();
+      document.getElementById("nodes").remove();
+      document.getElementById("links").remove();
+      document.getElementById("labels").remove();
+      document.getElementById("weights").remove();
+    };
   }, [counter]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
 
   return (
