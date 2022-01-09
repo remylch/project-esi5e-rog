@@ -1,6 +1,8 @@
 import React from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { initNetwork } from "../controller/NetworkController";
 import Network from "../models/Network";
+import { algorithmState, routersAvailableInStore } from "../store/store";
 import { convertTopology } from "../utils/topology";
 
 type SidebarType = {
@@ -20,13 +22,16 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
     r2: "",
   });
 
+  const setAlgorithm = useSetRecoilState(algorithmState);
+  const routersAvailable = useRecoilValue(routersAvailableInStore);
+
   const [networkInitialized, setNetworkInitialized] =
     React.useState<boolean>(false);
   const [topology, setTopology] = React.useState<string>("Random");
   const [nbRouters, setNbRouters] = React.useState<number>(3);
-  const [algo, setAlgo] = React.useState<string>("");
+  const [alg, setAlg] = React.useState<string>("");
 
-  const handleChangeRouterName = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRouterName = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.currentTarget;
     setRoutersName({ ...routersName, [name]: value });
   };
@@ -41,7 +46,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
   };
 
   const handleChangeAlgo = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setAlgo(event.target.value);
+    setAlg(event.target.value);
   };
 
   const removeNetwork = (e: React.MouseEvent<Element, MouseEvent>) => {
@@ -65,8 +70,13 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
     setNetworkInitialized(true); //open box when network is init
   };
 
+  const searchPath = () => {
+    console.log("Searching path...");
+    setAlgorithm({ algo: alg, r1: routersName.r1, r2: routersName.r2 });
+  };
+
   return (
-    <div className="flex flex-col  bg-blue-500 min-h-screen p-5">
+    <div className="flex flex-col w-full bg-blue-500 min-h-screen p-5">
       <h1 className="font-bold text-white text-xl self-center mt-3">
         Projet routage
       </h1>
@@ -143,14 +153,19 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
             </div>
 
             <div className="gap-5 flex items-center mx-5">
-              <input
+              <select
                 className="input"
                 placeholder="Routeur 1"
-                type="text"
                 value={routersName.r1}
                 onChange={handleChangeRouterName}
                 name="r1"
-              />
+              >
+                <option></option>
+                {routersAvailable &&
+                  routersAvailable.map((r: any) => {
+                    return <option>{r.name}</option>;
+                  })}
+              </select>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10"
@@ -163,14 +178,17 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
                   clip-rule="evenodd"
                 />
               </svg>
-              <input
+              <select
                 className="input"
                 placeholder="Routeur 2"
-                type="text"
                 value={routersName.r2}
                 onChange={handleChangeRouterName}
                 name="r2"
-              />
+              >
+                <option></option>
+                {routersAvailable &&
+                  routersAvailable.map((r: any) => <option>{r.name}</option>)}
+              </select>
             </div>
             <span className="text-gray-700 mt-5 mx-5">
               Algorithme de routage
@@ -181,7 +199,11 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
               <option>Ospf</option>
             </select>
           </section>
-          <button type="submit" className="btn-inline justify-end mt-5">
+          <button
+            type="submit"
+            onClick={searchPath}
+            className="btn-inline justify-end mt-5"
+          >
             Trouver le chemin
           </button>
         </>

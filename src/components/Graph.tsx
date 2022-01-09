@@ -3,8 +3,8 @@ import * as d3 from "d3";
 import Network from "../models/Network";
 import { d3Link, d3Node, datum, GraphType, point } from "../models/types/types";
 import { D3DragEvent, SimulationNodeDatum } from "d3";
-import { useRecoilState } from "recoil";
-import { counterTest } from "../store/store";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { algorithmState, counterTest, routersState } from "../store/store";
 import { Topology } from "../models/enum";
 import Router from "../models/Router";
 
@@ -14,9 +14,10 @@ type DataType = {
 
 function Graph({ data }: DataType) {
   const d3Chart = React.useRef<SVGSVGElement>(); // ref element of the html svg
-
+  const setRoutersForSelect = useSetRecoilState(routersState);
   const [counter] = useRecoilState(counterTest);
-
+  const [algorithm] = useRecoilState(algorithmState);
+  console.log(algorithm);
   /**
    * @description init the data to create the graph
    */
@@ -90,7 +91,7 @@ function Graph({ data }: DataType) {
               )
                 return;
 
-              //setup random ponderation
+              //setup random ponderation between 1 and 9 included
               let randomPonderation = Math.floor(Math.random() * (9 - 0) + 1);
 
               const link: d3Link = {
@@ -108,22 +109,33 @@ function Graph({ data }: DataType) {
   };
 
   useEffect(() => {
-    //cleanup svg before re rendering
-    /*
-    if (counter !== 0) {
-      
-      const nodes = document.getElementById("nodes");
-      const links = document.getElementById("links");
-      const labels = document.getElementById("labels");
-      d3Chart.current.removeChild(nodes);
-      d3Chart.current.removeChild(links);
-      d3Chart.current.removeChild(labels);
-      
-    }
-    */
-    const dataToUse = initDataToUse(); //data that we prepare before create the graph
-
+    let dataToUse = initDataToUse(); //data that we prepare before create the graph
     console.log("data used : ", dataToUse);
+
+    //set the routersState Store to update the select input on sidebar component
+    dataToUse.nodes.forEach((node: d3Node) =>
+      setRoutersForSelect((oldrouterList) => [
+        ...oldrouterList,
+        { name: node.id },
+      ]),
+    );
+
+    /*
+      If not algorithm provided -> draw the graph with dataToUse initialy generated
+      If Algo provided -> 
+        Transform data like
+          -> const graph = {
+                            start: {A: 5, B: 2},
+                            A: {C: 4, D: 2},
+                            B: {A: 8, D: 7},
+                            C: {D: 6, finish: 3},
+                            D: {finish: 1},
+                            finish: {}
+                          };
+
+        -> apply djikstra or the algorithm wanted
+        -> based on result, create object typeof GraphType with link colored for the path
+    */
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
@@ -292,15 +304,28 @@ function Graph({ data }: DataType) {
     }
 
     return () => {
-      console.log("test callback function");
+      //cleanupFunction before re-render
+      console.log("Cleanup");
       //remove everything of the graph
       simulation.stop();
-      document.getElementById("nodes").remove();
-      document.getElementById("links").remove();
-      document.getElementById("labels").remove();
-      document.getElementById("weights").remove();
+      cleanup();
     };
   }, [counter]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
+  //Counter is updated every time a router is disabled or enabled
+
+  function cleanup() {
+    //cleanup Graph
+    const nodes = document.getElementById("nodes");
+    if (nodes) nodes.remove();
+    const links = document.getElementById("links");
+    if (links) links.remove();
+    const labels = document.getElementById("labels");
+    if (labels) labels.remove();
+    const weights = document.getElementById("weights");
+    if (weights) weights.remove();
+    //cleanup routersAvailable in store
+    setRoutersForSelect([]);
+  }
 
   return (
     <svg

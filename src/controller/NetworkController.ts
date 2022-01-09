@@ -63,12 +63,29 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
               .getName(),
         );
 
+        let counterConnectionAlreadyAssigned = 0;
+        //check if some router of the collection already have this router in connection
+        collectionWithoutR.forEach((ro) => {
+          if (ro.getConnections().includes(actualRouter)) {
+            //incr counter
+            counterConnectionAlreadyAssigned += 1;
+          }
+        });
+
         //len of new collection
         let lenNewCollection: number = collectionWithoutR.length;
-        //nb of connection the router will have
-        let randomNbConnexion = Math.floor(
-          Math.random() * (lenNewCollection - 0) + 0,
-        );
+        //nb of connection the router will have (min : 1 , max : 4)
+        let randomNbConnexion: number = 0;
+        //prevent length < 4
+        if (lenNewCollection >= 4) {
+          randomNbConnexion =
+            Math.floor(Math.random() * (4 - 0) + 1) -
+            counterConnectionAlreadyAssigned;
+        } else {
+          randomNbConnexion =
+            Math.floor(Math.random() * (2 - 0) + 1) -
+            counterConnectionAlreadyAssigned;
+        }
 
         for (let i = 0; i < randomNbConnexion; i++) {
           //get random element of routerCollection
@@ -86,10 +103,7 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           lenNewCollection = lenNewCollection - 1;
         }
       }
-      console.log(
-        "router collection before bidirectionnal : ",
-        routerCollection,
-      );
+
       //enable the connexions bi-directionnaly if they are already set in one direction
       routerCollection.forEach((rcItem: Router) => {
         rcItem.getConnections().forEach((connection: Router) => {
@@ -104,6 +118,28 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           }
         });
       });
+
+      console.log("removing connexions > 4");
+      //remove connection to get nbConnexion <= 4 (max)
+      routerCollection.forEach((r: Router) => {
+        let lenConnexions = r.getConnections().length;
+        if (lenConnexions > 4) {
+          while (lenConnexions > 4) {
+            let randomR =
+              r.getConnections()[Math.floor(Math.random() * lenConnexions)];
+            if (randomR) {
+              if (randomR.getConnections().length > 1) {
+                r.removeConnexion(randomR);
+                randomR.removeConnexion(r);
+                //decrement lenConnexion to avoid out of range
+                lenConnexions -= 1;
+              }
+            }
+          }
+        }
+      });
+
+      console.log("data for algorithm", routerCollection);
   }
   return new Network(routerCollection, undefined, topology); //algo undefined for now
 };

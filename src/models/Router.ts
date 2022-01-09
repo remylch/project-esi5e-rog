@@ -51,6 +51,12 @@ class Router {
   addConnectedRouter(router: Router): void {
     this.connectedRouters.push(router);
   }
+
+  removeConnexion(router: Router): void {
+    this.connectedRouters = this.connectedRouters.filter(
+      (r) => r.getName() !== router.getName(),
+    );
+  }
   /*
   //Ponderation
   setPonderation(ponderation: number): void {
