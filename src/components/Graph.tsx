@@ -36,6 +36,7 @@ function Graph({ data }: DataType) {
   const initDataToUse = () => {
     //with data create a graph js object
     if (data) {
+      const tempListLink: { source: string; target: string }[] = [];
       //init graph
       const graphObj: GraphType = {
         nodes: [], // arr is an array of router
@@ -118,19 +119,35 @@ function Graph({ data }: DataType) {
                 weight: randomPonderation,
               };
 
-              //check if the link already exists since we create the bi-directionnal link / router in the foreach loop
-              const filteredLinks = graphObj.links.map(
-                (link: d3Link): boolean => link.source === connexion.getName(),
+              let tempLink = {
+                source: r.getName(),
+                target: connexion.getName(),
+              };
+
+              let tempReverseLink = {
+                source: connexion.getName(),
+                target: r.getName(),
+              };
+
+              const a = tempListLink.find(
+                (link) =>
+                  link.source === tempLink.source &&
+                  link.target === tempLink.target,
               );
-              if (!filteredLinks.includes(true)) {
+              console.log("value find : ", a);
+              //check if the link already exists between the two points since we create the bi-directionnal link / router in the foreach loop
+              if (!a) {
                 graphObj.links.push(link);
                 graphObj.links.push(reverseLink);
+                //push them to check if links are already in our graph obj
+
+                tempListLink.push(tempLink);
+                tempListLink.push(tempReverseLink);
               }
             });
-            console.log(graphObj);
-            //update graph state
           });
       }
+      console.log(graphObj);
       return graphObj;
     }
   };
@@ -144,7 +161,6 @@ function Graph({ data }: DataType) {
       dataToUse = tempStateData; // data already prepared before, lets apply algorithm
     }
 
-    console.log("tempState data : ", tempStateData);
     //set the routersState Store to update the select input on sidebar component
     dataToUse.nodes.forEach((node: d3Node) =>
       setRoutersForSelect((oldrouterList) => [
@@ -169,6 +185,7 @@ function Graph({ data }: DataType) {
         -> apply djikstra or the algorithm wanted
         -> based on result, create object typeof GraphType with link colored for the path
     */
+
     //transform data for djikstra
     if (!dataForDjikstra) {
       console.log("initialize data for djikstra");

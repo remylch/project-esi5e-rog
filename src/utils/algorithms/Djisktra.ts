@@ -64,6 +64,7 @@ const djisktra = (graph: TypeDataForDjikstra, start: string): any => {
     });
     console.log(distances);
   });
+  //return object of graph type with link colored for the shortest path
 };
 
 export const setupDataForDjikstra = (
