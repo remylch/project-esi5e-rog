@@ -71,7 +71,6 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
   };
 
   const searchPath = () => {
-    console.log("Searching path...");
     setAlgorithm({ algo: alg, r1: routersName.r1, r2: routersName.r2 });
   };
 

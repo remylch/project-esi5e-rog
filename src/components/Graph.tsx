@@ -1,12 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import Network from "../models/Network";
-import { d3Link, d3Node, datum, GraphType, point } from "../models/types/types";
+import {
+  d3Link,
+  d3Node,
+  datum,
+  GraphType,
+  point,
+  TypeDataForDjikstra,
+} from "../models/types/types";
 import { D3DragEvent, SimulationNodeDatum } from "d3";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { algorithmState, counterTest, routersState } from "../store/store";
 import { Topology } from "../models/enum";
 import Router from "../models/Router";
+import djisktra, { setupDataForDjikstra } from "../utils/algorithms/Djisktra";
 
 type DataType = {
   data: Network | undefined;
@@ -17,7 +25,11 @@ function Graph({ data }: DataType) {
   const setRoutersForSelect = useSetRecoilState(routersState);
   const [counter] = useRecoilState(counterTest);
   const [algorithm] = useRecoilState(algorithmState);
-  console.log(algorithm);
+
+  const [tempStateData, setTempStateData] = useState<GraphType>(null);
+  const [dataForDjikstra, setDataForDjikstra] =
+    useState<TypeDataForDjikstra>(null);
+
   /**
    * @description init the data to create the graph
    */
@@ -26,7 +38,7 @@ function Graph({ data }: DataType) {
     if (data) {
       //init graph
       const graphObj: GraphType = {
-        nodes: [], // arr is an array off router
+        nodes: [], // arr is an array of router
         links: [],
       };
 
@@ -99,19 +111,40 @@ function Graph({ data }: DataType) {
                 target: connexion.getName(),
                 weight: randomPonderation,
               };
-              graphObj.links.push(link);
+
+              const reverseLink: d3Link = {
+                source: connexion.getName(),
+                target: r.getName(),
+                weight: randomPonderation,
+              };
+
+              //check if the link already exists since we create the bi-directionnal link / router in the foreach loop
+              const filteredLinks = graphObj.links.map(
+                (link: d3Link): boolean => link.source === connexion.getName(),
+              );
+              if (!filteredLinks.includes(true)) {
+                graphObj.links.push(link);
+                graphObj.links.push(reverseLink);
+              }
             });
+            console.log(graphObj);
+            //update graph state
           });
-          //update graph state
-          return graphObj;
       }
+      return graphObj;
     }
   };
 
   useEffect(() => {
-    let dataToUse = initDataToUse(); //data that we prepare before create the graph
-    console.log("data used : ", dataToUse);
+    let dataToUse: GraphType = null;
+    if (tempStateData === null) {
+      dataToUse = initDataToUse(); //data that we prepare before create the first graph without algo
+      setTempStateData(dataToUse);
+    } else {
+      dataToUse = tempStateData; // data already prepared before, lets apply algorithm
+    }
 
+    console.log("tempState data : ", tempStateData);
     //set the routersState Store to update the select input on sidebar component
     dataToUse.nodes.forEach((node: d3Node) =>
       setRoutersForSelect((oldrouterList) => [
@@ -136,6 +169,25 @@ function Graph({ data }: DataType) {
         -> apply djikstra or the algorithm wanted
         -> based on result, create object typeof GraphType with link colored for the path
     */
+    //transform data for djikstra
+    if (!dataForDjikstra) {
+      console.log("initialize data for djikstra");
+      const tempDataForDjikstra = setupDataForDjikstra(
+        dataToUse.nodes,
+        dataToUse.links,
+      );
+      setDataForDjikstra(tempDataForDjikstra);
+    }
+
+    //if algo, start and end are defined perform djikstra
+    if (
+      dataForDjikstra &&
+      algorithm.algo === "Djikstra" &&
+      algorithm.r1 !== "" &&
+      algorithm.r2 !== ""
+    ) {
+      djisktra(dataForDjikstra, algorithm.r1.toString());
+    }
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
@@ -310,7 +362,7 @@ function Graph({ data }: DataType) {
       simulation.stop();
       cleanup();
     };
-  }, [counter]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
+  }, [counter, algorithm]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
   //Counter is updated every time a router is disabled or enabled
 
   function cleanup() {

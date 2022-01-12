@@ -1,5 +1,7 @@
 import Router from "../Router";
 
+export type TypeDataForDjikstra = Map<string, { id: string; weight: number }[]>;
+
 export type ConnectedRouterDataType = {
   router: Router;
   ponderation: number;

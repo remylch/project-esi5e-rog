@@ -1,7 +1,6 @@
 import { Status, Topology } from "../models/enum";
 import Network from "../models/Network";
 import Router from "../models/Router";
-//import { GraphType } from "../models/types/types";
 
 /**
  * @description Init the full network
@@ -97,9 +96,6 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           collectionWithoutR = collectionWithoutR.filter(
             (rf) => rf.getId() !== collectionWithoutR[randomRouter].getId(),
           );
-          console.log(
-            `Toutes mes connexions : ${actualRouter.getConnections()} `,
-          );
           lenNewCollection = lenNewCollection - 1;
         }
       }
@@ -119,7 +115,6 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
         });
       });
 
-      console.log("removing connexions > 4");
       //remove connection to get nbConnexion <= 4 (max)
       routerCollection.forEach((r: Router) => {
         let lenConnexions = r.getConnections().length;
@@ -138,8 +133,6 @@ const initNetwork = (nbRouter: number, topology: Topology) => {
           }
         }
       });
-
-      console.log("data for algorithm", routerCollection);
   }
   return new Network(routerCollection, undefined, topology); //algo undefined for now
 };

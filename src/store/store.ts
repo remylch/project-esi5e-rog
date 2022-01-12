@@ -1,5 +1,4 @@
 import { atom, selector } from "recoil";
-import Network from "../models/Network";
 import { GraphType } from "../models/types/types";
 
 export const networkState = atom({
@@ -15,6 +14,11 @@ export const counterTest = atom({
 export const algorithmState = atom({
   key: "algorithState",
   default: { algo: "", r1: "", r2: "" },
+});
+
+export const dataForAlgorithm = atom<GraphType>({
+  key: "dataForAlgorithm",
+  default: { nodes: [], links: [] },
 });
 
 export const routersState = atom({
