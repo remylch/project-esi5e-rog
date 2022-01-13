@@ -166,23 +166,6 @@ function Graph({ data }: DataType) {
       ]),
     );
 
-    /*
-      If not algorithm provided -> draw the graph with dataToUse initialy generated
-      If Algo provided -> 
-        Transform data like
-          -> const graph = {
-                            start: {A: 5, B: 2},
-                            A: {C: 4, D: 2},
-                            B: {A: 8, D: 7},
-                            C: {D: 6, finish: 3},
-                            D: {finish: 1},
-                            finish: {}
-                          };
-
-        -> apply djikstra or the algorithm wanted
-        -> based on result, create object typeof GraphType with link colored for the path
-    */
-
     //transform data for djikstra
     if (!dataForDjikstra) {
       console.log("initialize data for djikstra");
@@ -204,8 +187,10 @@ function Graph({ data }: DataType) {
         dataForDjikstra,
         algorithm.r1.toString(),
         algorithm.r2.toString(),
+        dataToUse,
       );
-      console.log(resultDjikstra);
+      dataToUse = resultDjikstra.updatedGraph;
+      alert(`Shortest path : ${resultDjikstra.path}`);
     }
 
     //select the global svg

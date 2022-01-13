@@ -1,4 +1,10 @@
-import { d3Link, d3Node, TypeDataForDjikstra } from "../../models/types/types";
+import { AnyRecord } from "dns";
+import {
+  d3Link,
+  d3Node,
+  GraphType,
+  TypeDataForDjikstra,
+} from "../../models/types/types";
 
 const utils = {
   print(map) {
@@ -12,8 +18,8 @@ const djisktra = (
   graph: TypeDataForDjikstra,
   start: string,
   end: string,
-): any => {
-  console.log("Djikstra is running...");
+  graphToUpdate: GraphType,
+): { distanceTotal: number; path: string[]; updatedGraph: GraphType } => {
   utils.print(graph);
 
   let distances = {};
@@ -51,28 +57,41 @@ const djisktra = (
 
   //get the shortest path
   const finalPath: string[] = [end];
-  let valueToFind = end;
-  while (valueToFind !== start) {
-    for (let item in path) {
-      //loop over properties of js object
-      if (Object.prototype.hasOwnProperty.call(path, item)) {
-        if (valueToFind === item) {
-          console.log("value to find", valueToFind);
-          finalPath.push(path[valueToFind]);
-          valueToFind = path[valueToFind];
-        }
-      }
-    }
-  }
+  let valueToFind: string = end;
+  getRouterOfPath(valueToFind, path, finalPath, start);
 
-  console.log(finalPath);
-  console.log(finalPath.reverse());
+  graphToUpdate.links.forEach((link: any) => {
+    const { source, target } = link;
+    if (finalPath.includes(source.id) && finalPath.includes(target.id)) {
+      link.color = "red";
+    }
+  });
+
   //return object of graph type with link colored for the shortest path
   return {
     distanceTotal: distances[end],
-    path,
+    path: finalPath.reverse(),
+    updatedGraph: graphToUpdate,
   };
 };
+
+function getRouterOfPath(
+  valueToFind: string,
+  path: {},
+  finalPath: string[],
+  start: string,
+) {
+  for (let item in path) {
+    if (valueToFind === start) return;
+    //loop over properties of js object
+    if (Object.prototype.hasOwnProperty.call(path, item)) {
+      if (valueToFind === item) {
+        finalPath.push(path[valueToFind]);
+        getRouterOfPath(path[valueToFind], path, finalPath, start);
+      }
+    }
+  }
+}
 
 export const setupDataForDjikstra = (
   nodes: d3Node[],
