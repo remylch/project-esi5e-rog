@@ -11,7 +11,13 @@ import {
 } from "../models/types/types";
 import { D3DragEvent, SimulationNodeDatum } from "d3";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { algorithmState, counterTest, routersState } from "../store/store";
+import {
+  algorithmState,
+  counterTest,
+  isOpenModalResultState,
+  resultAlgo,
+  routersState,
+} from "../store/store";
 import { Topology } from "../models/enum";
 import Router from "../models/Router";
 import djisktra, { setupDataForDjikstra } from "../utils/algorithms/Djisktra";
@@ -22,11 +28,20 @@ type DataType = {
 
 function Graph({ data }: DataType) {
   const d3Chart = React.useRef<SVGSVGElement>(); // ref element of the html svg
+  //global state of the routers used to search path
   const setRoutersForSelect = useSetRecoilState(routersState);
+  //global state of the modal
+  const setOpenModal = useSetRecoilState(isOpenModalResultState);
+  //global state of the result of the algorithm used
+  const setDataResultAlgo = useSetRecoilState(resultAlgo);
+  //global state counter to update when a link is break
   const [counter] = useRecoilState(counterTest);
+  //global state which define algorithm used and starting point and ending point
   const [algorithm] = useRecoilState(algorithmState);
 
+  //temp state of GraphType
   const [tempStateData, setTempStateData] = useState<GraphType>(null);
+  //state to get data used to perform djikstra
   const [dataForDjikstra, setDataForDjikstra] =
     useState<TypeDataForDjikstra>(null);
 
@@ -190,7 +205,8 @@ function Graph({ data }: DataType) {
         dataToUse,
       );
       dataToUse = resultDjikstra.updatedGraph;
-      alert(`Shortest path : ${resultDjikstra.path}`);
+      setDataResultAlgo(resultDjikstra.path);
+      setOpenModal(true);
     }
 
     //select the global svg
@@ -364,6 +380,8 @@ function Graph({ data }: DataType) {
       console.log("Cleanup");
       //remove everything of the graph
       simulation.stop();
+      //clean red links for new path
+      dataToUse.links.forEach((l) => (l.color = "white"));
       cleanup();
     };
   }, [counter, algorithm]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
@@ -384,11 +402,13 @@ function Graph({ data }: DataType) {
   }
 
   return (
-    <svg
-      className="flex flex-1 w-full bg-green-400 overflow-y-scroll overflow-x-scroll"
-      ref={d3Chart}
-      id="d3"
-    ></svg>
+    <>
+      <svg
+        className="flex flex-1 w-full bg-green-400 overflow-y-scroll overflow-x-scroll"
+        ref={d3Chart}
+        id="d3"
+      ></svg>
+    </>
   );
 }
 

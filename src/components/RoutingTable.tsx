@@ -70,7 +70,9 @@ function RoutingTable({ data, updateStatusFunction }: TypeRoutingTable) {
                                   : "text-red-800 bg-red-100"
                               } `}
                             >
-                              {router.getStatus()}
+                              {router.getStatus() === "SERVER_UP"
+                                ? "ROUTER_UP"
+                                : "ROUTER_DOWN"}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">

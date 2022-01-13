@@ -1,4 +1,3 @@
-import { AnyRecord } from "dns";
 import {
   d3Link,
   d3Node,
@@ -20,7 +19,7 @@ const djisktra = (
   end: string,
   graphToUpdate: GraphType,
 ): { distanceTotal: number; path: string[]; updatedGraph: GraphType } => {
-  utils.print(graph);
+  //utils.print(graph);
 
   let distances = {};
   let visited: Set<string> = new Set();

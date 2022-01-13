@@ -33,3 +33,15 @@ export const routersAvailableInStore = selector({
     return routers;
   },
 });
+
+// result
+
+export const resultAlgo = atom<string[]>({
+  key: "resultAlgo",
+  default: [],
+});
+
+export const isOpenModalResultState = atom<boolean>({
+  key: "isOpenModalResultState",
+  default: false,
+});

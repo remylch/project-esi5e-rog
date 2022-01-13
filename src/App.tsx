@@ -1,11 +1,16 @@
-import React from "react";
-import { useRecoilState } from "recoil";
+import React, { useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
 import "./App.css";
 import Graph from "./components/Graph";
 import RoutingTable from "./components/RoutingTable";
 import Sidebar from "./components/Sidebar";
 import Network from "./models/Network";
-import { counterTest } from "../src/store/store";
+import {
+  counterTest,
+  isOpenModalResultState,
+  resultAlgo,
+} from "../src/store/store";
+import Modal from "./components/Modal";
 
 type DataStateType = {
   network: Network | undefined;
@@ -17,9 +22,10 @@ function App() {
     network: undefined,
     algo: "",
   });
-
   const [counter, setCounter] = useRecoilState(counterTest);
-
+  const [dataResultAlgo] = useRecoilState(resultAlgo);
+  const [isOpenModal, setOpenModal] = useRecoilState(isOpenModalResultState);
+  console.log(isOpenModal);
   const updateNetworkState = (network: Network) => {
     setDataState({ ...dataState, network });
   };
@@ -35,8 +41,17 @@ function App() {
     setDataState({ network: undefined, algo: "" });
   }
 
+  function updateModal() {
+    if (isOpenModal) {
+      setOpenModal(false);
+    } else {
+      setOpenModal(true);
+    }
+  }
+
   return (
     <div className="flex flex-1">
+      <Modal open={isOpenModal} setOpen={updateModal} path={dataResultAlgo} />
       <div className="flex w-96">
         <Sidebar
           updateData={updateNetworkState}
