@@ -1,4 +1,3 @@
-import Collection from "./Collection";
 import { Topology } from "./enum";
 import Router from "./Router";
 import { GraphType } from "./types/types";

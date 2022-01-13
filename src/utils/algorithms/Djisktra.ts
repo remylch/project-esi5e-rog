@@ -8,63 +8,70 @@ const utils = {
   },
 };
 
-const djisktra = (graph: TypeDataForDjikstra, start: string): any => {
+const djisktra = (
+  graph: TypeDataForDjikstra,
+  start: string,
+  end: string,
+): any => {
   console.log("Djikstra is running...");
-  //utils.print(graph);
+  utils.print(graph);
 
   let distances = {};
   let visited: Set<string> = new Set();
-  let total_distance: number = 0;
-  let nbRouter: number = 0;
+  let path = {};
 
   for (let key of graph.keys()) {
     if (key !== start) {
       //set all other distances to Infinity
       distances[key] = Infinity;
-      nbRouter += 1;
+      path[key] = null;
     } else {
       //set start distance to 0
       distances[key] = 0;
       visited.add(key); //add the started node to visited nodes
-      nbRouter += 1;
+      path[key] = "Starting point";
     }
   }
 
-  //TODO:
-  //if node has not been visited
   /*
   pour chaque visited node on prendre les enfant, si distance[visitedNode] + child.weight < distances[child] 
   on remplace distances[child] par distances[visitedNode] + child.weight
   */
-
-  //tant que tous les noeuds n'ont pas été visité
-  //while (visited.size !== nbRouter) {
-
-  //calculate distance between current node and its children
-  //loop through visited node to get their child and loop over them to get to possible next child
   visited.forEach((visitedNode) => {
     graph.get(visitedNode).forEach((child) => {
       const { id, weight } = child; // destructure child to get his properties
-      //if (!visited.has(id)) {
-      // if child dont have been already visited
-      /*
-        if (distances[id] > weight + total_distance) {
-          distances[id] = weight + total_distance;
-          //total_distance += weight;
-          tempListToAdd.delete(id);
-          tempListToAdd.add(id);
-        }
-        //}
-        */
       const x = distances[visitedNode] + weight;
       if (x < distances[id]) {
         distances[id] = x;
+        path[id] = visitedNode;
         visited.add(id);
       }
     });
-    console.log(distances);
   });
+
+  //get the shortest path
+  const finalPath: string[] = [end];
+  let valueToFind = end;
+  while (valueToFind !== start) {
+    for (let item in path) {
+      //loop over properties of js object
+      if (Object.prototype.hasOwnProperty.call(path, item)) {
+        if (valueToFind === item) {
+          console.log("value to find", valueToFind);
+          finalPath.push(path[valueToFind]);
+          valueToFind = path[valueToFind];
+        }
+      }
+    }
+  }
+
+  console.log(finalPath);
+  console.log(finalPath.reverse());
   //return object of graph type with link colored for the shortest path
+  return {
+    distanceTotal: distances[end],
+    path,
+  };
 };
 
 export const setupDataForDjikstra = (

@@ -1,11 +1,11 @@
 import Network from "../models/Network";
 
-type RoutingTable = {
+type TypeRoutingTable = {
   data: undefined | Network;
   updateStatusFunction: (id: number) => any;
 };
 
-function RoutingTable({ data, updateStatusFunction }: RoutingTable) {
+function RoutingTable({ data, updateStatusFunction }: TypeRoutingTable) {
   return (
     <div className="flex h-56 w-full overflow-y overflow-y-scroll">
       <div className="flex flex-col w-full">
@@ -81,7 +81,7 @@ function RoutingTable({ data, updateStatusFunction }: RoutingTable) {
                               <select>
                                 <option value=""></option>
                                 {router.getConnections().map((r) => (
-                                  <option value={r.getName()}>
+                                  <option key={r.getId()} value={r.getName()}>
                                     {r.getName()}
                                   </option>
                                 ))}

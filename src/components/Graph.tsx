@@ -134,20 +134,17 @@ function Graph({ data }: DataType) {
                   link.source === tempLink.source &&
                   link.target === tempLink.target,
               );
-              console.log("value find : ", a);
               //check if the link already exists between the two points since we create the bi-directionnal link / router in the foreach loop
               if (!a) {
                 graphObj.links.push(link);
                 graphObj.links.push(reverseLink);
                 //push them to check if links are already in our graph obj
-
                 tempListLink.push(tempLink);
                 tempListLink.push(tempReverseLink);
               }
             });
           });
       }
-      console.log(graphObj);
       return graphObj;
     }
   };
@@ -203,7 +200,12 @@ function Graph({ data }: DataType) {
       algorithm.r1 !== "" &&
       algorithm.r2 !== ""
     ) {
-      djisktra(dataForDjikstra, algorithm.r1.toString());
+      const resultDjikstra = djisktra(
+        dataForDjikstra,
+        algorithm.r1.toString(),
+        algorithm.r2.toString(),
+      );
+      console.log(resultDjikstra);
     }
 
     //select the global svg
