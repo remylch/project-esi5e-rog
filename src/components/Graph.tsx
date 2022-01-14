@@ -18,7 +18,7 @@ import {
   resultAlgo,
   routersState,
 } from "../store/store";
-import { Topology } from "../models/enum";
+import { Status, Topology } from "../models/enum";
 import Router from "../models/Router";
 import djisktra, { setupDataForDjikstra } from "../utils/algorithms/Djisktra";
 
@@ -44,6 +44,8 @@ function Graph({ data }: DataType) {
   //state to get data used to perform djikstra
   const [dataForDjikstra, setDataForDjikstra] =
     useState<TypeDataForDjikstra>(null);
+
+  let disabledLinks = [];
 
   /**
    * @description init the data to create the graph
@@ -71,27 +73,64 @@ function Graph({ data }: DataType) {
             const routerToFind: Router | undefined = data
               .getRouters()
               .find((rf) => rf.getName() === `Router-${r.getId() + 1}`);
+
+            //setup random ponderation
+            let randomPonderation = Math.floor(Math.random() * (9 - 0) + 1);
+
             //if exist create link with him else no router left so connect to the first one
             if (!routerToFind) {
               //link r with firt router of the graph
               const link: d3Link = {
                 source: r.getName(),
                 target: "Router-0",
+                weight: randomPonderation,
+              };
+
+              const reversedLink: d3Link = {
+                source: "Router-0",
+                target: r.getName(),
+                weight: randomPonderation,
               };
               graphObj.links.push(link);
             } else {
-              //setup random ponderation
-              let randomPonderation = Math.floor(Math.random() * (100 - 0) + 0);
-
               const link: d3Link = {
                 source: r.getName(),
                 target: routerToFind.getName(),
                 weight: randomPonderation,
               };
-              graphObj.links.push(link);
+
+              const reverseLink: d3Link = {
+                source: routerToFind.getName(),
+                target: r.getName(),
+                weight: randomPonderation,
+              };
+
+              let tempLink = {
+                source: r.getName(),
+                target: routerToFind.getName(),
+              };
+
+              let tempReverseLink = {
+                source: routerToFind.getName(),
+                target: r.getName(),
+              };
+
+              const a = tempListLink.find(
+                (link) =>
+                  link.source === tempLink.source &&
+                  link.target === tempLink.target,
+              );
+              //check if the link already exists between the two points since we create the bi-directionnal link / router in the foreach loop
+              if (!a) {
+                graphObj.links.push(link);
+                graphObj.links.push(reverseLink);
+                //push them to check if links are already in our graph obj
+                tempListLink.push(tempLink);
+                tempListLink.push(tempReverseLink);
+              }
             }
           });
-          return graphObj;
+          break;
         case Topology.TREE:
           break;
         case Topology.RANDOM:
@@ -160,17 +199,50 @@ function Graph({ data }: DataType) {
             });
           });
       }
+      console.log(graphObj);
       return graphObj;
     }
   };
 
   useEffect(() => {
     let dataToUse: GraphType = null;
+
+    const linksDisabled = [];
+
+    //cette boucle permet de ne pas regénérer le graph et donc appliquer djikstra dessus. (sinon il ne s'applique pas)
     if (tempStateData === null) {
       dataToUse = initDataToUse(); //data that we prepare before create the first graph without algo
       setTempStateData(dataToUse);
     } else {
       dataToUse = tempStateData; // data already prepared before, lets apply algorithm
+      //vérifier si on a coupé un lien dans la table de routage
+      const listNewLinks = [];
+      data.getRouters().forEach((r) => {
+        if (r.getStatus() === Status.SERVER_DOWN) {
+          /*
+          dataToUse.links = dataToUse.links.filter(
+            (l: any) =>
+              l.source.id !== r.getName() || l.target.id !== r.getName(),
+          );
+          */
+          dataToUse.links.forEach((l: any) => {
+            const name = r.getName();
+            if (
+              (l.target.id.toString() !== name &&
+                l.source.id.toString() !== name) ||
+              (l.source.id.toString() !== name &&
+                l.target.id.toString() !== name)
+            ) {
+              listNewLinks.push(l);
+            } else {
+              //remove links and re push them to dataToUse at cleanup for next render
+              linksDisabled.push(l);
+            }
+          });
+          dataToUse.links = listNewLinks;
+        }
+      });
+      console.log(dataToUse);
     }
 
     //set the routersState Store to update the select input on sidebar component
@@ -377,11 +449,12 @@ function Graph({ data }: DataType) {
 
     return () => {
       //cleanupFunction before re-render
-      console.log("Cleanup");
+      //console.log("Cleanup");
       //remove everything of the graph
       simulation.stop();
       //clean red links for new path
       dataToUse.links.forEach((l) => (l.color = "white"));
+
       cleanup();
     };
   }, [counter, algorithm]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)

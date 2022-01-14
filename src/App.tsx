@@ -25,7 +25,6 @@ function App() {
   const [counter, setCounter] = useRecoilState(counterTest);
   const [dataResultAlgo] = useRecoilState(resultAlgo);
   const [isOpenModal, setOpenModal] = useRecoilState(isOpenModalResultState);
-  console.log(isOpenModal);
   const updateNetworkState = (network: Network) => {
     setDataState({ ...dataState, network });
   };
