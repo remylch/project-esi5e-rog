@@ -45,7 +45,7 @@ function Graph({ data }: DataType) {
   const [dataForDjikstra, setDataForDjikstra] =
     useState<TypeDataForDjikstra>(null);
 
-  let disabledLinks = [];
+  let disabledLinks: d3Link[] = [];
 
   /**
    * @description init the data to create the graph
@@ -199,15 +199,12 @@ function Graph({ data }: DataType) {
             });
           });
       }
-      console.log(graphObj);
       return graphObj;
     }
   };
 
   useEffect(() => {
     let dataToUse: GraphType = null;
-
-    const linksDisabled = [];
 
     //cette boucle permet de ne pas regénérer le graph et donc appliquer djikstra dessus. (sinon il ne s'applique pas)
     if (tempStateData === null) {
@@ -219,12 +216,6 @@ function Graph({ data }: DataType) {
       const listNewLinks = [];
       data.getRouters().forEach((r) => {
         if (r.getStatus() === Status.SERVER_DOWN) {
-          /*
-          dataToUse.links = dataToUse.links.filter(
-            (l: any) =>
-              l.source.id !== r.getName() || l.target.id !== r.getName(),
-          );
-          */
           dataToUse.links.forEach((l: any) => {
             const name = r.getName();
             if (
@@ -236,7 +227,9 @@ function Graph({ data }: DataType) {
               listNewLinks.push(l);
             } else {
               //remove links and re push them to dataToUse at cleanup for next render
-              linksDisabled.push(l);
+              disabledLinks.push(l);
+              //remove from dataForDjikstra to avoid problem on algorithm
+              dataForDjikstra.delete(r.getName());
             }
           });
           dataToUse.links = listNewLinks;
@@ -280,6 +273,24 @@ function Graph({ data }: DataType) {
       setDataResultAlgo(resultDjikstra.path);
       setOpenModal(true);
     }
+
+    /*
+    if(dataForBellmanFord &&
+      algorithm.algo === "Bellman-Ford" &&
+      algorithm.r1 !== "" &&
+      algorithm.r2 !== ""
+    ) {
+      const resultBellmanFord = bellmanFord(
+        dataForBellmanFord,
+        algorithm.r1.toString(),
+        algorithm.r2.toString(),
+        dataToUse,
+      );
+      dataToUse = resultBellmanFord.updatedGraph;
+      setDataResultAlgo(resultBellmanFord.path);
+      setOpenModal(true);
+    }
+    */
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph
@@ -454,6 +465,7 @@ function Graph({ data }: DataType) {
       simulation.stop();
       //clean red links for new path
       dataToUse.links.forEach((l) => (l.color = "white"));
+      disabledLinks.forEach((dl) => dataToUse.links.push(dl));
 
       cleanup();
     };
