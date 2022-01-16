@@ -45,3 +45,18 @@ export const isOpenModalResultState = atom<boolean>({
   key: "isOpenModalResultState",
   default: false,
 });
+
+//modal client graph
+
+export const isOpenModalClientGraph = atom<boolean>({
+  key: "isOpenModalClientGraph",
+  default: false,
+});
+
+export const clientProperGraph = atom<GraphType>({
+  key: "clientProperGraph",
+  default: {
+    links: [],
+    nodes: [],
+  },
+});

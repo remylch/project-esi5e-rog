@@ -13,6 +13,7 @@ import { D3DragEvent, SimulationNodeDatum } from "d3";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import {
   algorithmState,
+  clientProperGraph,
   counterTest,
   isOpenModalResultState,
   resultAlgo,
@@ -20,7 +21,7 @@ import {
 } from "../store/store";
 import { Status, Topology } from "../models/enum";
 import Router from "../models/Router";
-import djisktra, { setupDataForDjikstra } from "../utils/algorithms/Djisktra";
+import dijkstra, { setupDataForDjikstra } from "../utils/algorithms/Dijkstra";
 
 type DataType = {
   data: Network | undefined;
@@ -39,10 +40,15 @@ function Graph({ data }: DataType) {
   //global state which define algorithm used and starting point and ending point
   const [algorithm] = useRecoilState(algorithmState);
 
+  //global state of the client graph
+  const [clientGraph, setClientGraph] = useRecoilState(clientProperGraph);
+
+  console.log(clientGraph);
+
   //temp state of GraphType
   const [tempStateData, setTempStateData] = useState<GraphType>(null);
   //state to get data used to perform djikstra
-  const [dataForDjikstra, setDataForDjikstra] =
+  const [dataForDijkstra, setDataForDijkstra] =
     useState<TypeDataForDjikstra>(null);
 
   let disabledLinks: d3Link[] = [];
@@ -199,43 +205,53 @@ function Graph({ data }: DataType) {
             });
           });
       }
+      console.log("graphobj : ", graphObj);
       return graphObj;
     }
   };
 
   useEffect(() => {
     let dataToUse: GraphType = null;
-
-    //cette boucle permet de ne pas regénérer le graph et donc appliquer djikstra dessus. (sinon il ne s'applique pas)
-    if (tempStateData === null) {
-      dataToUse = initDataToUse(); //data that we prepare before create the first graph without algo
-      setTempStateData(dataToUse);
+    if (clientGraph.nodes.length > 0) {
+      // génère le graph avec les données du client
+      if (tempStateData) {
+        dataToUse = tempStateData; //algo with data client
+      } else {
+        dataToUse = JSON.parse(JSON.stringify(clientGraph));
+        setTempStateData(dataToUse);
+      }
     } else {
-      dataToUse = tempStateData; // data already prepared before, lets apply algorithm
-      //vérifier si on a coupé un lien dans la table de routage
-      const listNewLinks = [];
-      data.getRouters().forEach((r) => {
-        if (r.getStatus() === Status.SERVER_DOWN) {
-          dataToUse.links.forEach((l: any) => {
-            const name = r.getName();
-            if (
-              (l.target.id.toString() !== name &&
-                l.source.id.toString() !== name) ||
-              (l.source.id.toString() !== name &&
-                l.target.id.toString() !== name)
-            ) {
-              listNewLinks.push(l);
-            } else {
-              //remove links and re push them to dataToUse at cleanup for next render
-              disabledLinks.push(l);
-              //remove from dataForDjikstra to avoid problem on algorithm
-              dataForDjikstra.delete(r.getName());
-            }
-          });
-          dataToUse.links = listNewLinks;
-        }
-      });
-      console.log(dataToUse);
+      //cette boucle permet de ne pas regénérer le graph et donc appliquer djikstra dessus. (sinon il ne s'applique pas)
+      if (tempStateData === null) {
+        dataToUse = initDataToUse(); //data that we prepare before create the first graph without algo
+        setTempStateData(dataToUse);
+      } else {
+        dataToUse = tempStateData; // data already prepared before, lets apply algorithm
+        //vérifier si on a coupé un lien dans la table de routage
+        const listNewLinks = [];
+        data.getRouters().forEach((r) => {
+          if (r.getStatus() === Status.SERVER_DOWN) {
+            dataToUse.links.forEach((l: any) => {
+              const name = r.getName();
+              if (
+                (l.target.id.toString() !== name &&
+                  l.source.id.toString() !== name) ||
+                (l.source.id.toString() !== name &&
+                  l.target.id.toString() !== name)
+              ) {
+                listNewLinks.push(l);
+              } else {
+                //remove links and re push them to dataToUse at cleanup for next render
+                disabledLinks.push(l);
+                //remove from dataForDjikstra to avoid problem on algorithm
+                //TODO: Re add on cleanup
+                dataForDijkstra.delete(r.getName());
+              }
+            });
+            dataToUse.links = listNewLinks;
+          }
+        });
+      }
     }
 
     //set the routersState Store to update the select input on sidebar component
@@ -247,24 +263,23 @@ function Graph({ data }: DataType) {
     );
 
     //transform data for djikstra
-    if (!dataForDjikstra) {
-      console.log("initialize data for djikstra");
+    if (!dataForDijkstra) {
       const tempDataForDjikstra = setupDataForDjikstra(
         dataToUse.nodes,
         dataToUse.links,
       );
-      setDataForDjikstra(tempDataForDjikstra);
+      setDataForDijkstra(tempDataForDjikstra);
     }
 
     //if algo, start and end are defined perform djikstra
     if (
-      dataForDjikstra &&
-      algorithm.algo === "Djikstra" &&
+      dataForDijkstra &&
+      algorithm.algo === "Dijkstra" &&
       algorithm.r1 !== "" &&
       algorithm.r2 !== ""
     ) {
-      const resultDjikstra = djisktra(
-        dataForDjikstra,
+      const resultDjikstra = dijkstra(
+        dataForDijkstra,
         algorithm.r1.toString(),
         algorithm.r2.toString(),
         dataToUse,
@@ -322,7 +337,7 @@ function Graph({ data }: DataType) {
       .style("cursor", "pointer")
       .attr("r", 25)
       .attr("fill", "rgb(128,90,213)")
-      .attr("stroke", "white")
+      .attr("strokeWidth", "white")
       .call(
         d3
           .drag<SVGCircleElement, datum>()
@@ -469,7 +484,7 @@ function Graph({ data }: DataType) {
 
       cleanup();
     };
-  }, [counter, algorithm]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
+  }, [counter, algorithm, clientGraph]); // [data] permit to run the useEffect every time data in props are changed (like update router etc...)
   //Counter is updated every time a router is disabled or enabled
 
   function cleanup() {

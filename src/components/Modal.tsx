@@ -34,7 +34,10 @@ export default function Example({ open, setOpen, path }: IModal) {
                   </h3>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Shortest path is : {path.map((s) => s + " ")}
+                      Shortest path is :{" "}
+                      {path.includes(null)
+                        ? "No path exists"
+                        : path.map((s) => s + " ")}
                     </p>
                   </div>
                 </div>

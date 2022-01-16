@@ -13,7 +13,7 @@ const utils = {
   },
 };
 
-const djisktra = (
+const dijkstra = (
   graph: TypeDataForDjikstra,
   start: string,
   end: string,
@@ -114,4 +114,4 @@ const addEdge = (
   //map.get(destination).push({ weight: weight, id: origin });
 };
 
-export default djisktra;
+export default dijkstra;

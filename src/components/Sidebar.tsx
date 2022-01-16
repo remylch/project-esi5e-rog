@@ -1,9 +1,15 @@
 import React from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { initNetwork } from "../controller/NetworkController";
 import Network from "../models/Network";
-import { algorithmState, routersAvailableInStore } from "../store/store";
+import {
+  algorithmState,
+  isOpenModalClientGraph,
+  routersAvailableInStore,
+} from "../store/store";
 import { convertTopology } from "../utils/topology";
+import ModalNetwork from "./ModalNetwork";
+import { UserIcon } from "@heroicons/react/outline";
 
 type SidebarType = {
   updateData: any;
@@ -74,12 +80,31 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
     setAlgorithm({ algo: alg, r1: routersName.r1, r2: routersName.r2 });
   };
 
+  //modal graph
+  const [isOpenModalClient, setIsOpenModalClient] = useRecoilState(
+    isOpenModalClientGraph,
+  );
+
+  function openModalClient(e: any) {
+    e.preventDefault();
+    if (isOpenModalClient) {
+      setIsOpenModalClient(false);
+    } else {
+      setIsOpenModalClient(true);
+    }
+  }
+
   return (
     <div className="flex flex-col w-full bg-blue-500 min-h-screen p-5">
+      {isOpenModalClient && (
+        <ModalNetwork
+          setNetworkInitialized={() => setNetworkInitialized(true)}
+        />
+      )}
       <h1 className="font-bold text-white text-xl self-center mt-3">
         Projet routage
       </h1>
-      <form className="flex flex-col flex-1" onSubmit={sendData}>
+      <form className="flex flex-col flex-1">
         <section className="m-5 p-5 flex flex-col bg-white rounded-3xl w-full self-center items-center">
           <label className="w-3/4">
             <span>Nombe de routeurs</span>
@@ -100,12 +125,8 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
               className="h-10 mt-1 block w-full rounded-lg ring ring-offset-2 focus:outline-none"
               onChange={handleChangeTopology}
             >
-              <option>Random</option>
-              <option>Tree</option>
-              <option>Star</option>
-              <option>Ring</option>
-              <option>Bus à diffusion</option>
-              <option>Etoile à diffusion</option>
+              <option value="Random">Random</option>
+              <option value="Ring">Anneau point à point</option>
             </select>
           </label>
           {errors.errForm && (
@@ -122,10 +143,17 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
             <p className="text-red-500 mt-3">Please type a correct mask.</p>
           )}
         </section>
-        <button type="submit" className="btn-inline justify-end">
-          Créer mon réseau
+        <button onClick={sendData} className="btn-inline justify-end mb-2">
+          Générer le réseau
+        </button>
+        <button
+          onClick={openModalClient}
+          className="btn-inline flex justify-around"
+        >
+          Créer mon propre réseau <UserIcon className="h-7 w-7" />
         </button>
       </form>
+
       {/* Path */}
       {networkInitialized && (
         <>
@@ -194,8 +222,8 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
             </span>
             <select className="input self-center" onChange={handleChangeAlgo}>
               <option></option>
-              <option>Djikstra</option>
-              <option>Ospf</option>
+              <option>Dijkstra</option>
+              <option>DFS</option>
             </select>
           </section>
           <button

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import React from "react";
+import { useRecoilState } from "recoil";
 import "./App.css";
 import Graph from "./components/Graph";
 import RoutingTable from "./components/RoutingTable";
 import Sidebar from "./components/Sidebar";
 import Network from "./models/Network";
 import {
+  clientProperGraph,
   counterTest,
   isOpenModalResultState,
   resultAlgo,
@@ -22,6 +23,7 @@ function App() {
     network: undefined,
     algo: "",
   });
+  const [clientGraph, setClientGraph] = useRecoilState(clientProperGraph);
   const [counter, setCounter] = useRecoilState(counterTest);
   const [dataResultAlgo] = useRecoilState(resultAlgo);
   const [isOpenModal, setOpenModal] = useRecoilState(isOpenModalResultState);
@@ -58,7 +60,7 @@ function App() {
         />
       </div>
       <div className="flex flex-1 flex-col">
-        {dataState.network !== undefined && (
+        {dataState.network !== undefined ? (
           <>
             <Graph data={dataState.network} />
             <RoutingTable
@@ -66,6 +68,8 @@ function App() {
               updateStatusFunction={updateRouterStatus}
             />
           </>
+        ) : (
+          clientGraph.nodes.length > 0 && <Graph data={dataState.network} />
         )}
       </div>
     </div>
