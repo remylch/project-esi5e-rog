@@ -40,6 +40,7 @@ function App() {
 
   function removeAllData() {
     setDataState({ network: undefined, algo: "" });
+    setClientGraph({ nodes: [], links: [] });
   }
 
   function updateModal() {

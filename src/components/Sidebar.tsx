@@ -4,6 +4,7 @@ import { initNetwork } from "../controller/NetworkController";
 import Network from "../models/Network";
 import {
   algorithmState,
+  clientProperGraph,
   isOpenModalClientGraph,
   routersAvailableInStore,
 } from "../store/store";
