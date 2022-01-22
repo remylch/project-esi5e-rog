@@ -22,6 +22,7 @@ import {
 import { Status, Topology } from "../models/enum";
 import Router from "../models/Router";
 import dijkstra, { setupDataForDjikstra } from "../utils/algorithms/Dijkstra";
+import { bfs } from "../utils/algorithms/Bfs";
 
 type DataType = {
   data: Network | undefined;
@@ -50,6 +51,8 @@ function Graph({ data }: DataType) {
   //state to get data used to perform djikstra
   const [dataForDijkstra, setDataForDijkstra] =
     useState<TypeDataForDjikstra>(null);
+
+  const [dataForBfs, setDataForBfs] = useState<TypeDataForDjikstra>(null);
 
   let disabledLinks: d3Link[] = [];
 
@@ -263,12 +266,14 @@ function Graph({ data }: DataType) {
     );
 
     //transform data for djikstra
-    if (!dataForDijkstra) {
+    if (!dataForDijkstra && !dataForBfs) {
+      //TODO: Modifier les noms pour dataForAlgo parce que peu importe l'algo on utilise la même stucture de donnée
       const tempDataForDjikstra = setupDataForDjikstra(
         dataToUse.nodes,
         dataToUse.links,
       );
       setDataForDijkstra(tempDataForDjikstra);
+      setDataForBfs(tempDataForDjikstra);
     }
 
     //if algo, start and end are defined perform djikstra
@@ -289,23 +294,22 @@ function Graph({ data }: DataType) {
       setOpenModal(true);
     }
 
-    /*
-    if(dataForBellmanFord &&
-      algorithm.algo === "Bellman-Ford" &&
+    if (
+      dataForBfs &&
+      algorithm.algo === "BFS" &&
       algorithm.r1 !== "" &&
       algorithm.r2 !== ""
     ) {
-      const resultBellmanFord = bellmanFord(
-        dataForBellmanFord,
+      const resultBFS = bfs(
+        dataForBfs,
         algorithm.r1.toString(),
         algorithm.r2.toString(),
         dataToUse,
       );
-      dataToUse = resultBellmanFord.updatedGraph;
-      setDataResultAlgo(resultBellmanFord.path);
+      dataToUse = resultBFS.updatedGraph;
+      setDataResultAlgo(resultBFS.path);
       setOpenModal(true);
     }
-    */
 
     //select the global svg
     const context: any = d3.select(d3Chart.current); // select the element in the html as context for the graph

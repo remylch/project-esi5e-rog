@@ -224,7 +224,7 @@ function Sidebar({ updateData, removeAllData }: SidebarType) {
             <select className="input self-center" onChange={handleChangeAlgo}>
               <option></option>
               <option>Dijkstra</option>
-              <option>DFS</option>
+              <option>BFS</option>
             </select>
           </section>
           <button
